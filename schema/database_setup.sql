@@ -1,5 +1,18 @@
 -- BarzMap Database Setup
--- Copy and paste this entire file into Supabase SQL Editor
+
+-- Idempotent reset (safe re-run): drop existing objects, then recreate
+BEGIN;
+DROP FUNCTION IF EXISTS set_updated_at() CASCADE;
+DROP TABLE IF EXISTS images CASCADE;
+DROP TABLE IF EXISTS park_equipment CASCADE;
+DROP TABLE IF EXISTS reviews CASCADE;
+DROP TABLE IF EXISTS parks CASCADE;
+DROP TABLE IF EXISTS equipment CASCADE;
+DROP TABLE IF EXISTS users CASCADE;
+COMMIT;
+
+-- Required extensions
+CREATE EXTENSION IF NOT EXISTS pgcrypto;
 
 -- 1. Users Table
 CREATE TABLE users (
@@ -94,6 +107,58 @@ CREATE INDEX idx_images_approved ON images(is_approved);
 CREATE INDEX idx_reviews_park_id ON reviews(park_id);
 CREATE INDEX idx_users_role ON users(role);
 
+-- Data quality constraints and enhancements
+-- Coordinate ranges
+ALTER TABLE parks
+  ADD CONSTRAINT parks_latitude_range CHECK (latitude >= -90 AND latitude <= 90),
+  ADD CONSTRAINT parks_longitude_range CHECK (longitude >= -180 AND longitude <= 180);
+
+-- Enforce NOT NULL on key foreign keys
+ALTER TABLE park_equipment
+  ALTER COLUMN park_id SET NOT NULL,
+  ALTER COLUMN equipment_id SET NOT NULL;
+
+ALTER TABLE images
+  ALTER COLUMN park_id SET NOT NULL;
+
+ALTER TABLE reviews
+  ALTER COLUMN park_id SET NOT NULL,
+  ALTER COLUMN user_id SET NOT NULL;
+
+-- Ensure equipment names are unique
+ALTER TABLE equipment
+  ADD CONSTRAINT equipment_name_unique UNIQUE (name);
+
+-- Only one primary image per park
+CREATE UNIQUE INDEX IF NOT EXISTS uq_primary_image_per_park
+  ON images (park_id)
+  WHERE is_primary;
+
+-- Helpful FK indexes
+CREATE INDEX IF NOT EXISTS idx_images_uploaded_by ON images(uploaded_by);
+CREATE INDEX IF NOT EXISTS idx_reviews_user_id ON reviews(user_id);
+
+-- Auto-update updated_at columns
+CREATE OR REPLACE FUNCTION set_updated_at()
+RETURNS TRIGGER AS $$
+BEGIN
+  NEW.updated_at := NOW();
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER set_updated_at_users
+BEFORE UPDATE ON users
+FOR EACH ROW EXECUTE FUNCTION set_updated_at();
+
+CREATE TRIGGER set_updated_at_parks
+BEFORE UPDATE ON parks
+FOR EACH ROW EXECUTE FUNCTION set_updated_at();
+
+CREATE TRIGGER set_updated_at_reviews
+BEFORE UPDATE ON reviews
+FOR EACH ROW EXECUTE FUNCTION set_updated_at();
+
 -- Sample Equipment Data
 INSERT INTO equipment (id, name, description, icon_name) VALUES
     (gen_random_uuid(), 'Pull-up Bar', 'Horizontal bar for pull-ups and chin-ups', 'pull-up-bar'),
@@ -106,3 +171,4 @@ INSERT INTO equipment (id, name, description, icon_name) VALUES
 
 -- Success message
 SELECT 'BarzMap database setup completed successfully!' as message;
+
