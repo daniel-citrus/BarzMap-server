@@ -17,7 +17,6 @@ from services.Database import (
     delete_park,
 )
 from models.requests.parks import ParkCreate, ParkUpdate, ParkResponse
-from models.database import Park
 
 router = APIRouter()
 

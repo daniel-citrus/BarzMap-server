@@ -17,7 +17,6 @@ from services.Database import (
 from models.requests.park_equipment import ParkEquipmentResponse
 from models.requests.equipment import EquipmentResponse
 from models.requests.parks import ParkResponse
-from models.database import Equipment, ParkEquipment, Park
 
 router = APIRouter()
 

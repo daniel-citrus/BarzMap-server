@@ -14,35 +14,27 @@ from services.Database import (
     update_image,
     delete_image,
 )
-from models.requests.images import ImageResponse
-from models.database import Image
+from models.requests.images import ImageResponse, ImageCreate, ImageUpdate
 
 router = APIRouter()
 
 
 @router.post("/", response_model=ImageResponse, tags=["Images"])
 def create_new_image(
-    park_id: UUID,
-    image_url: str,
-    uploaded_by: Optional[UUID] = None,
-    thumbnail_url: Optional[str] = None,
-    alt_text: Optional[str] = None,
-    is_approved: bool = False,
-    is_primary: bool = False,
-    is_inappropriate: bool = False,
+    image_data: ImageCreate,
     db: Session = Depends(get_db)
 ):
     """Create a new image."""
     return create_image(
         db=db,
-        park_id=park_id,
-        image_url=image_url,
-        uploaded_by=uploaded_by,
-        thumbnail_url=thumbnail_url,
-        alt_text=alt_text,
-        is_approved=is_approved,
-        is_primary=is_primary,
-        is_inappropriate=is_inappropriate,
+        park_id=image_data.park_id,
+        image_url=image_data.image_url,
+        uploaded_by=image_data.uploaded_by,
+        thumbnail_url=image_data.thumbnail_url,
+        alt_text=image_data.alt_text,
+        is_approved=image_data.is_approved,
+        is_primary=image_data.is_primary,
+        is_inappropriate=image_data.is_inappropriate,
     )
 
 
@@ -89,24 +81,19 @@ def get_primary_image_for_park(
 @router.put("/{image_id}", response_model=ImageResponse, tags=["Images"])
 def update_image_by_id(
     image_id: UUID,
-    image_url: Optional[str] = None,
-    thumbnail_url: Optional[str] = None,
-    alt_text: Optional[str] = None,
-    is_approved: Optional[bool] = None,
-    is_primary: Optional[bool] = None,
-    is_inappropriate: Optional[bool] = None,
+    image_data: ImageUpdate,
     db: Session = Depends(get_db)
 ):
     """Update an image."""
     image = update_image(
         db=db,
         image_id=image_id,
-        image_url=image_url,
-        thumbnail_url=thumbnail_url,
-        alt_text=alt_text,
-        is_approved=is_approved,
-        is_primary=is_primary,
-        is_inappropriate=is_inappropriate,
+        image_url=image_data.image_url,
+        thumbnail_url=image_data.thumbnail_url,
+        alt_text=image_data.alt_text,
+        is_approved=image_data.is_approved,
+        is_primary=image_data.is_primary,
+        is_inappropriate=image_data.is_inappropriate,
     )
     if not image:
         raise HTTPException(status_code=404, detail="Image not found")

@@ -15,34 +15,29 @@ from services.Database import (
     update_review,
     delete_review,
 )
-from models.requests.reviews import ReviewResponse
-from models.database import Review
+from models.requests.reviews import ReviewResponse, ReviewCreate, ReviewUpdate
 
 router = APIRouter()
 
 
 @router.post("/", response_model=ReviewResponse, tags=["Reviews"])
 def create_new_review(
-    park_id: UUID,
-    user_id: UUID,
-    rating: int = Query(..., ge=1, le=5, description="Rating from 1 to 5"),
-    comment: Optional[str] = None,
-    is_approved: bool = True,
+    review_data: ReviewCreate,
     db: Session = Depends(get_db)
 ):
     """Create a new review."""
     # Check if review already exists for this park and user
-    existing = get_review_by_park_and_user(db, park_id, user_id)
+    existing = get_review_by_park_and_user(db, review_data.park_id, review_data.user_id)
     if existing:
         raise HTTPException(status_code=400, detail="Review already exists for this park and user")
     
     return create_review(
         db=db,
-        park_id=park_id,
-        user_id=user_id,
-        rating=rating,
-        comment=comment,
-        is_approved=is_approved,
+        park_id=review_data.park_id,
+        user_id=review_data.user_id,
+        rating=review_data.rating,
+        comment=review_data.comment,
+        is_approved=review_data.is_approved,
     )
 
 
@@ -108,18 +103,16 @@ def get_review_by_park_and_user_endpoint(
 @router.put("/{review_id}", response_model=ReviewResponse, tags=["Reviews"])
 def update_review_by_id(
     review_id: UUID,
-    rating: Optional[int] = Query(None, ge=1, le=5),
-    comment: Optional[str] = None,
-    is_approved: Optional[bool] = None,
+    review_data: ReviewUpdate,
     db: Session = Depends(get_db)
 ):
     """Update a review."""
     review = update_review(
         db=db,
         review_id=review_id,
-        rating=rating,
-        comment=comment,
-        is_approved=is_approved,
+        rating=review_data.rating,
+        comment=review_data.comment,
+        is_approved=review_data.is_approved,
     )
     if not review:
         raise HTTPException(status_code=404, detail="Review not found")

@@ -15,7 +15,6 @@ from services.Database import (
     delete_equipment,
 )
 from models.requests.equipment import EquipmentCreate, EquipmentUpdate, EquipmentResponse
-from models.database import Equipment
 
 router = APIRouter()
 
