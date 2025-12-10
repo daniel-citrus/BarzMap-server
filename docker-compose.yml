@@ -1,0 +1,46 @@
+version: '3.8'
+
+services:
+  # Main API service
+  api:
+    build: .
+    image: barzmap-app:latest
+    container_name: barzmap-api
+    ports:
+      - "8000:8000"
+    environment:
+      # Clear DATABASE_URL so the app builds the correct internal URL using the variables below
+      DATABASE_URL: ""
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_HOST: postgres
+      POSTGRES_PORT: "5432"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    volumes:
+      - .:/app # Mount source code for hot reload
+    command: sh -c "python -m alembic upgrade head && uvicorn main:app --host 0.0.0.0 --port 8000 --reload"
+    restart: always
+
+  postgres:
+    image: postgres:15-alpine
+    container_name: barzmap-postgres
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U ${POSTGRES_USER}" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: always
+
+volumes:
+  postgres_data:

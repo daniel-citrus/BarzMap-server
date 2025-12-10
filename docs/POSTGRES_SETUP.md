@@ -59,7 +59,7 @@ This guide will walk you through installing PostgreSQL and setting up your datab
 
 3. **Create your database:**
    ```bash
-   createdb barzmap_db
+      
    # Or if you need to specify a user:
    createdb -U barzmap_user barzmap_db
    ```
