@@ -12,7 +12,8 @@ from pathlib import Path
 # Add project root to path
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
-from services.Database.connection import Base, SUPERUSER_DATABASE_URL
+from services.Database.PostgresConnection import Base, APP_DATABASE_URL
+
 # Import all models so Alembic can detect them
 from models.database import User, Park, Equipment, ParkEquipment, Image, Review
 
@@ -21,8 +22,8 @@ from models.database import User, Park, Equipment, ParkEquipment, Image, Review
 config = context.config
 
 # Override sqlalchemy.url with your database URL
-# Use superuser URL for migrations (may need elevated privileges)
-config.set_main_option("sqlalchemy.url", SUPERUSER_DATABASE_URL)
+# Use app URL for migrations
+config.set_main_option("sqlalchemy.url", APP_DATABASE_URL)
 
 # Interpret the config file for Python logging.
 # This line sets up loggers basically.
