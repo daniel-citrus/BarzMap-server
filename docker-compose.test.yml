@@ -1,44 +1,44 @@
 services:
-  # Main API service
-  api:
+  # Test API service
+  api-test:
     build: .
     image: barzmap-app:latest
-    container_name: barzmap-api
+    container_name: barzmap-api-test
     ports:
-      - "8000:8000"
+      - "8001:8000" # Different port to run alongside main API
     environment:
-      # Clear DATABASE_URL so the app builds the correct internal URL using the variables below
       DATABASE_URL: ""
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-      POSTGRES_DB: ${POSTGRES_DB}
-      POSTGRES_HOST: postgres
+      POSTGRES_DB: ${POSTGRES_DB}_test
+      POSTGRES_HOST: postgres-test
       POSTGRES_PORT: "5432"
     depends_on:
-      postgres:
+      postgres-test:
         condition: service_healthy
     volumes:
-      - .:/app # Mount source code for hot reload
+      - .:/app
     command: sh -c "python -m alembic upgrade head && uvicorn main:app --host 0.0.0.0 --port 8000 --reload"
     restart: always
 
-  postgres:
+  # Test Database
+  postgres-test:
     image: postgres:15-alpine
-    container_name: barzmap-postgres
+    container_name: barzmap-postgres-test
     environment:
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_DB: ${POSTGRES_DB}_test
     ports:
-      - "${POSTGRES_PORT:-5432}:5432"
+      - "5433:5432"
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - postgres_test_data:/var/lib/postgresql/data
     healthcheck:
-      test: [ "CMD-SHELL", "pg_isready -U ${POSTGRES_USER}" ]
+      test: [ "CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}_test" ]
       interval: 10s
       timeout: 5s
       retries: 5
     restart: always
 
 volumes:
-  postgres_data:
+  postgres_test_data:
