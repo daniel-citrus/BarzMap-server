@@ -7,6 +7,8 @@ from api import (
     images_router,
     reviews_router,
     park_equipment_router,
+    events_router,
+    admin_router,
 )
 
 app = FastAPI()
@@ -21,3 +23,5 @@ app.include_router(equipment_router, prefix="/api/equipment", tags=["Equipment"]
 app.include_router(images_router, prefix="/api/images", tags=["Images"])
 app.include_router(reviews_router, prefix="/api/reviews", tags=["Reviews"])
 app.include_router(park_equipment_router, prefix="/api/park-equipment", tags=["Park Equipment"])
+app.include_router(events_router, prefix="/api/events", tags=["Events"])
+app.include_router(admin_router, prefix="/api/admin", tags=["Admin"])

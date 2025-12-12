@@ -1,3 +1,5 @@
+name: barzmap
+
 services:
   # Main API service
   api:

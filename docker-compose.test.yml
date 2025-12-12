@@ -1,3 +1,5 @@
+name: barzmap-test
+
 services:
   # Test API service
   api-test:
@@ -5,7 +7,7 @@ services:
     image: barzmap-app:latest
     container_name: barzmap-api-test
     ports:
-      - "8001:8000" # Different port to run alongside main API
+      - "8000:8000" # Different port to run alongside main API
     environment:
       DATABASE_URL: ""
       POSTGRES_USER: ${POSTGRES_USER}
@@ -18,7 +20,7 @@ services:
         condition: service_healthy
     volumes:
       - .:/app
-    command: sh -c "python -m alembic upgrade head && uvicorn main:app --host 0.0.0.0 --port 8000 --reload"
+    command: sh -c "python -m alembic upgrade head && python scripts/seed_test_data.py && uvicorn main:app --host 0.0.0.0 --port 8000 --reload"
     restart: always
 
   # Test Database

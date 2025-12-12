@@ -8,6 +8,8 @@ from .EquipmentRouter import router as equipment_router
 from .ImagesRouter import router as images_router
 from .ReviewsRouter import router as reviews_router
 from .ParkEquipmentRouter import router as park_equipment_router
+from .EventsRouter import router as events_router
+from .AdminRouter import router as admin_router
 
 __all__ = [
     "users_router",
@@ -16,5 +18,7 @@ __all__ = [
     "images_router",
     "reviews_router",
     "park_equipment_router",
+    "events_router",
+    "admin_router",
 ]
 

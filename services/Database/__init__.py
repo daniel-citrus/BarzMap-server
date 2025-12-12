@@ -24,6 +24,8 @@ from .ParksTable import (
     get_parks_by_location,
     update_park,
     delete_park,
+    get_park_submissions_paginated,
+    moderate_park,
 )
 from .EquipmentTable import (
     create_equipment,
@@ -58,6 +60,11 @@ from .ParkEquipmentTable import (
     get_parks_by_equipment,
     remove_all_equipment_from_park,
 )
+from .EventsTable import (
+    get_events,
+    create_event,
+    get_event,
+)
 
 __all__ = [
     # Connection
@@ -81,6 +88,8 @@ __all__ = [
     "get_parks_by_location",
     "update_park",
     "delete_park",
+    "get_park_submissions_paginated",
+    "moderate_park",
     # Equipment
     "create_equipment",
     "get_equipment",
@@ -110,4 +119,8 @@ __all__ = [
     "get_equipment_by_park",
     "get_parks_by_equipment",
     "remove_all_equipment_from_park",
+    # Events
+    "get_events",
+    "create_event",
+    "get_event",
 ]

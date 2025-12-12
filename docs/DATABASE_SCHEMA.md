@@ -178,6 +178,35 @@ CREATE TABLE reviews (
 - `is_approved`: Whether the review is approved
 - `created_at`, `updated_at`: Timestamps
 
+### 7. Events Table
+Stores events happening at parks (workout sessions, community gatherings, etc.).
+
+```sql
+CREATE TABLE events (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    park_id UUID REFERENCES parks(id) ON DELETE CASCADE,
+    name VARCHAR(255) NOT NULL,
+    description TEXT,
+    host VARCHAR(255),
+    event_date DATE,
+    event_time TIME,
+    created_by UUID REFERENCES users(id) ON DELETE SET NULL,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+```
+
+**Fields:**
+- `id`: Unique identifier for the event
+- `park_id`: Park where the event takes place
+- `name`: Name of the event
+- `description`: Event description text
+- `host`: Name of the event host or organization
+- `event_date`: Date of the event (optional)
+- `event_time`: Time of the event (optional, 24-hour format)
+- `created_by`: User who created the event
+- `created_at`, `updated_at`: Timestamps
+
 
 ## Indexes
 
@@ -192,6 +221,8 @@ CREATE INDEX idx_images_park_id ON images(park_id);
 CREATE INDEX idx_images_approved ON images(is_approved);
 CREATE INDEX idx_reviews_park_id ON reviews(park_id);
 CREATE INDEX idx_users_role ON users(role);
+CREATE INDEX idx_events_park_id ON events(park_id);
+CREATE INDEX idx_events_date ON events(event_date);
 ```
 
 ## Constraints and Relationships
@@ -205,6 +236,8 @@ CREATE INDEX idx_users_role ON users(role);
 - `images.uploaded_by` → `users.id`
 - `reviews.park_id` → `parks.id`
 - `reviews.user_id` → `users.id`
+- `events.park_id` → `parks.id`
+- `events.created_by` → `users.id`
 
 ## Sample Data
 ### Sample Equipment Data:

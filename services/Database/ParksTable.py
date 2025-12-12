@@ -2,11 +2,11 @@
 CRUD operations for Parks table.
 """
 from sqlalchemy.orm import Session
-from sqlalchemy import and_
-from typing import Optional, List
+from sqlalchemy import and_, or_, func
+from typing import Optional, List, Tuple
 from uuid import UUID
 from decimal import Decimal
-from datetime import datetime
+from datetime import datetime, timezone
 from models.database import Park
 
 
@@ -152,4 +152,95 @@ def delete_park(db: Session, park_id: UUID) -> bool:
     db.delete(park)
     db.commit()
     return True
+
+
+def get_park_submissions_paginated(
+    db: Session,
+    status: Optional[str] = "pending",
+    search: Optional[str] = None,
+    page: int = 1,
+    page_size: int = 20,
+) -> Tuple[List[Park], int]:
+    """
+    Get park submissions with pagination, status filtering, and search.
+    
+    Returns:
+        Tuple of (list of parks, total count)
+    """
+    query = db.query(Park)
+    
+    # Filter by status
+    if status and status != "all":
+        query = query.filter(Park.status == status)
+    
+    # Search filter (fuzzy match on name, address, or submitter name)
+    if search:
+        from models.database import User
+        search_pattern = f"%{search}%"
+        query = query.outerjoin(User, Park.submitted_by == User.id).filter(
+            or_(
+                Park.name.ilike(search_pattern),
+                Park.address.ilike(search_pattern),
+                User.name.ilike(search_pattern)
+            )
+        )
+    
+    # Get total count before pagination
+    total_count = query.count()
+    
+    # Apply pagination
+    skip = (page - 1) * page_size
+    parks = query.order_by(Park.submit_date.desc()).offset(skip).limit(page_size).all()
+    
+    return parks, total_count
+
+
+def moderate_park(
+    db: Session,
+    park_id: UUID,
+    status: str,
+    approved_by: Optional[UUID] = None,
+    admin_notes: Optional[str] = None,
+) -> Optional[Park]:
+    """
+    Moderate a park (approve, deny, or set to pending).
+    
+    Args:
+        db: Database session
+        park_id: Park ID to moderate
+        status: New status ('approved', 'rejected', 'pending')
+        approved_by: User ID of the moderator (optional)
+        admin_notes: Moderation comment/notes (optional)
+    
+    Returns:
+        Updated Park object or None if not found
+    """
+    park = get_park(db, park_id)
+    if not park:
+        return None
+    
+    # Validate status
+    if status not in ['approved', 'rejected', 'pending']:
+        return None
+    
+    # Update status
+    park.status = status
+    
+    # Set approved_by and approved_at if approving/rejecting
+    if status in ['approved', 'rejected']:
+        if approved_by:
+            park.approved_by = approved_by
+        park.approved_at = datetime.now(timezone.utc)
+    elif status == 'pending':
+        # Reset approval info when setting back to pending
+        park.approved_by = None
+        park.approved_at = None
+    
+    # Update admin notes (trim whitespace)
+    if admin_notes is not None:
+        park.admin_notes = admin_notes.strip() if admin_notes else ""
+    
+    db.commit()
+    db.refresh(park)
+    return park
 
