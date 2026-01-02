@@ -47,9 +47,8 @@ def purge_test_data():
         parks_deleted = db.query(Park).delete()
         print(f"Deleted {parks_deleted} parks")
         
-        # Equipment (standalone, but referenced by park_equipment)
-        equipment_deleted = db.query(Equipment).delete()
-        print(f"Deleted {equipment_deleted} equipment types")
+        # Note: Equipment is NOT deleted - it's reference data seeded by migrations
+        # and should persist across test runs
         
         # Users last (referenced by many tables)
         users_deleted = db.query(User).delete()

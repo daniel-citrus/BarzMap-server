@@ -7,7 +7,7 @@ A backend API for BarzMap, a web app where people can find and share outdoor gym
 
 ### Backend
 - **FastAPI** - Handles requests and data
-- **PostgreSQL (Supabase)** - Stores data
+- **PostgreSQL** - Stores data (Docker containers)
 - **Auth0** - Handles user login
 - **Python** - Core language
 - **SQLAlchemy** - ORM for database interaction
@@ -16,7 +16,7 @@ A backend API for BarzMap, a web app where people can find and share outdoor gym
 
 ### Hosting & Infrastructure
 - **Render** - Hosts the API server
-- **Supabase** - Hosts the PostgreSQL database
+- **Docker** - PostgreSQL database in containers
 - **Cloudflare** - Image delivery / Storage (Optional)
 
 ## Features
@@ -36,9 +36,9 @@ A backend API for BarzMap, a web app where people can find and share outdoor gym
 ## Start Up Checklist
 
 ### 1. Set Up Accounts & Services
-- [X] Create Supabase account and project
-  - [X] Set up PostgreSQL database
-  - [X] Configure authentication settings
+- [X] Set up PostgreSQL database in Docker
+  - [X] Configure Docker Compose for main and test databases
+  - [X] Set up database connection and environment variables
 - [X] Create Auth0 account and tenant
   - [X] Configure social login providers (Google, Facebook)
   - [X] Set up application settings and callbacks
@@ -52,7 +52,7 @@ A backend API for BarzMap, a web app where people can find and share outdoor gym
   - [X] Create main.py with basic app configuration
   - [X] Set up project folders (api, models, services)
   - [X] Configure CORS and middleware
-- [X] Connect to Supabase/Postgres
+- [X] Connect to PostgreSQL
   - [X] Install and configure SQLAlchemy
   - [X] Set up database connection (PostgresConnection.py)
   - [X] Create database models (User, Park, Equipment, etc.)
@@ -98,7 +98,7 @@ A backend API for BarzMap, a web app where people can find and share outdoor gym
 
 ## Cost
 - **Auth0**: Free for 7,500 users/month
-- **Supabase**: Free for 500MB database
+- **Docker/PostgreSQL**: Free (self-hosted)
 - **Render**: Free server hosting (API)
 - **Cloudflare**: Free image delivery
 
