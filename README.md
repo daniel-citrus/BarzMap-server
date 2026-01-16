@@ -1,193 +1,284 @@
-<!-- Improved compatibility of back to top link: See: https://github.com/othneildrew/Best-README-Template/pull/73 -->
-<a name="readme-top"></a>
-<!--
-*** Thanks for checking out the Best-README-Template. If you have a suggestion
-*** that would make this better, please fork the repo and create a pull request
-*** or simply open an issue with the tag "enhancement".
-*** Don't forget to give the project a star!
-*** Thanks again! Now go create something AMAZING! :D
--->
+# BarzMap Server
 
-
-
-<!-- PROJECT SHIELDS -->
-<!--
-*** I'm using markdown "reference style" links for readability.
-*** Reference links are enclosed in brackets [ ] instead of parentheses ( ).
-*** See the bottom of this document for the declaration of the reference variables
-*** for contributors-url, forks-url, etc. This is an optional, concise syntax you may use.
-*** https://www.markdownguide.org/basic-syntax/#reference-style-links
--->
-[![Contributors][contributors-shield]][contributors-url]
-[![Forks][forks-shield]][forks-url]
-[![Stargazers][stars-shield]][stars-url]
-[![Issues][issues-shield]][issues-url]
-[![MIT License][license-shield]][license-url]
-[![LinkedIn][linkedin-shield]][linkedin-url]
-
-
-
-<!-- PROJECT LOGO -->
-<br />
-<div align="center">
-  <a href="https://github.com/othneildrew/Best-README-Template">
-    <img src="images/logo.png" alt="Logo" width="80" height="80">
-  </a>
-
-  <h3 align="center">Best-README-Template</h3>
-
-  <p align="center">
-    An awesome README template to jumpstart your projects!
-    <br />
-    <a href="https://github.com/othneildrew/Best-README-Template"><strong>Explore the docs »</strong></a>
-    <br />
-    <br />
-    <a href="https://github.com/othneildrew/Best-README-Template">View Demo</a>
-    ·
-    <a href="https://github.com/othneildrew/Best-README-Template/issues">Report Bug</a>
-    ·
-    <a href="https://github.com/othneildrew/Best-README-Template/issues">Request Feature</a>
-  </p>
-</div>
-
-
-
-<!-- TABLE OF CONTENTS -->
-<details>
-  <summary>Table of Contents</summary>
-  <ol>
-    <li>
-      <a href="#about-the-project">About The Project</a>
-      <ul>
-        <li><a href="#built-with">Built With</a></li>
-      </ul>
-    </li>
-    <li>
-      <a href="#getting-started">Getting Started</a>
-      <ul>
-        <li><a href="#prerequisites">Prerequisites</a></li>
-        <li><a href="#installation">Installation</a></li>
-      </ul>
-    </li>
-    <li><a href="#usage">Usage</a></li>
-    <li><a href="#roadmap">Roadmap</a></li>
-    <li><a href="#contributing">Contributing</a></li>
-    <li><a href="#license">License</a></li>
-    <li><a href="#contact">Contact</a></li>
-    <li><a href="#acknowledgments">Acknowledgments</a></li>
-  </ol>
-</details>
-
-
-
-<!-- ABOUT THE PROJECT -->
-## About The Project
-
-[![Product Name Screen Shot][product-screenshot]](https://example.com)
-
-There are many great README templates available on GitHub; however, I didn't find one that really suited my needs so I created this enhanced one. I want to create a README template so amazing that it'll be the last one you ever need -- I think this is it.
-
-Here's why:
-* Your time should be focused on creating something amazing. A project that solves a problem and helps others
-* You shouldn't be doing the same tasks over and over like creating a README from scratch
-* You should implement DRY principles to the rest of your life :smile:
-
-Of course, no one template will serve all projects since your needs may be different. So I'll be adding more in the near future. You may also suggest changes by forking this repo and creating a pull request or opening an issue. Thanks to all the people have contributed to expanding this template!
-
-Use the `BLANK_README.md` to get started.
+Backend API server for BarzMap, a web application where people can find and share outdoor gyms and workout parks. This server handles data storage, user authentication, and admin workflows.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
+## Table of Contents
 
+- [About The Project](#about-the-project)
+  - [Built With](#built-with)
+- [Getting Started](#getting-started)
+  - [Prerequisites](#prerequisites)
+  - [Installation](#installation)
+  - [Environment Variables](#environment-variables)
+- [API Endpoints](#api-endpoints)
+- [Project Structure](#project-structure)
+- [Testing](#testing)
+- [Database Migrations](#database-migrations)
+- [Documentation](#documentation)
+- [Roadmap](#roadmap)
+- [Contributing](#contributing)
+- [License](#license)
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+## About The Project
+
+BarzMap Server is a RESTful API built with FastAPI that powers the BarzMap application. It provides endpoints for managing parks, equipment, users, images, reviews, and events. The server includes an approval workflow for user-submitted parks and supports role-based access control for administrators.
+
+### Key Features
+
+- **Parks Management**: CRUD operations for outdoor gyms and workout parks
+- **Equipment Tracking**: Manage equipment inventory at parks
+- **User Authentication**: Auth0 integration for secure user management
+- **Image Management**: Handle park photos with approval workflow
+- **Reviews & Ratings**: User reviews and ratings system
+- **Events**: Community events at parks
+- **Admin Workflows**: Park approval and content moderation
+- **Location-based Queries**: Search parks by geographic coordinates
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 ### Built With
 
-This section should list any major frameworks/libraries used to bootstrap your project. Leave any add-ons/plugins for the acknowledgements section. Here are a few examples.
-
-* [![Next][Next.js]][Next-url]
-* [![React][React.js]][React-url]
-* [![Vue][Vue.js]][Vue-url]
-* [![Angular][Angular.io]][Angular-url]
-* [![Svelte][Svelte.dev]][Svelte-url]
-* [![Laravel][Laravel.com]][Laravel-url]
-* [![Bootstrap][Bootstrap.com]][Bootstrap-url]
-* [![JQuery][JQuery.com]][JQuery-url]
+* [![FastAPI][FastAPI]][FastAPI-url] - Modern, fast web framework for building APIs
+* [![PostgreSQL][PostgreSQL]][PostgreSQL-url] - Relational database
+* [![SQLAlchemy][SQLAlchemy]][SQLAlchemy-url] - Python SQL toolkit and ORM
+* [![Alembic][Alembic]][Alembic-url] - Database migration tool
+* [![Pytest][Pytest]][Pytest-url] - Testing framework
+* [![Docker][Docker]][Docker-url] - Containerization
+* [![Auth0][Auth0]][Auth0-url] - Authentication service
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
-
-
-<!-- GETTING STARTED -->
 ## Getting Started
-
-This is an example of how you may give instructions on setting up your project locally.
-To get a local copy up and running follow these simple example steps.
 
 ### Prerequisites
 
-This is an example of how to list things you need to use the software and how to install them.
-* npm
-  ```sh
-  npm install npm@latest -g
-  ```
+- Python 3.9+
+- Docker and Docker Compose
+- PostgreSQL 15+ (or use Docker)
+- Auth0 account (for authentication)
 
 ### Installation
 
-_Below is an example of how you can instruct your audience on installing and setting up your app. This template doesn't rely on any external dependencies or services._
+1. **Clone the repository**
+   ```sh
+   git clone https://github.com/your_username/BarzMap-server.git
+   cd BarzMap-server
+   ```
 
-1. Get a free API Key at [https://example.com](https://example.com)
-2. Clone the repo
+2. **Create a `.env` file** in the project root:
+   ```env
+   POSTGRES_USER=barzmap_user
+   POSTGRES_PASSWORD=your_secure_password
+   POSTGRES_DB=barzmap_db
+   POSTGRES_PORT=5432
+   POSTGRES_HOST=localhost
+   
+   # Auth0 Configuration
+   AUTH0_DOMAIN=your-auth0-domain.auth0.com
+   AUTH0_CLIENT_ID=your-client-id
+   AUTH0_CLIENT_SECRET=your-client-secret
+   AUTH0_AUDIENCE=your-api-identifier
+   
+   # Optional: Cloudflare for image storage
+   CLOUDFLARE_ACCOUNT_ID=your-account-id
+   CLOUDFLARE_API_TOKEN=your-api-token
+   ```
+
+3. **Install Python dependencies**
    ```sh
-   git clone https://github.com/your_username_/Project-Name.git
+   pip install -r requirements.txt
    ```
-3. Install NPM packages
+
+4. **Start the database with Docker Compose**
    ```sh
-   npm install
+   docker-compose up -d postgres
    ```
-4. Enter your API in `config.js`
-   ```js
-   const API_KEY = 'ENTER YOUR API';
+
+5. **Run database migrations**
+   ```sh
+   alembic upgrade head
    ```
+
+6. **Start the development server**
+   ```sh
+   uvicorn main:app --reload
+   ```
+
+   Or use Docker Compose to run everything:
+   ```sh
+   docker-compose up
+   ```
+
+The API will be available at `http://localhost:8000`
+
+### Environment Variables
+
+| Variable | Description | Required |
+|----------|-------------|----------|
+| `POSTGRES_USER` | PostgreSQL username | Yes |
+| `POSTGRES_PASSWORD` | PostgreSQL password | Yes |
+| `POSTGRES_DB` | Database name | Yes |
+| `POSTGRES_HOST` | Database host | Yes |
+| `POSTGRES_PORT` | Database port | Yes |
+| `AUTH0_DOMAIN` | Auth0 domain | Yes |
+| `AUTH0_CLIENT_ID` | Auth0 client ID | Yes |
+| `AUTH0_CLIENT_SECRET` | Auth0 client secret | Yes |
+| `AUTH0_AUDIENCE` | Auth0 API identifier | Yes |
+| `CLOUDFLARE_ACCOUNT_ID` | Cloudflare account ID | No |
+| `CLOUDFLARE_API_TOKEN` | Cloudflare API token | No |
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
+## API Endpoints
 
+The API provides the following endpoint groups:
 
-<!-- USAGE EXAMPLES -->
-## Usage
+- **Authentication** (`/auth`) - User authentication endpoints
+- **Users** (`/api/users`) - User management
+- **Parks** (`/api/parks`) - Park CRUD operations and location-based queries
+- **Equipment** (`/api/equipment`) - Equipment type management
+- **Park Equipment** (`/api/park-equipment`) - Link equipment to parks
+- **Images** (`/api/images`) - Image upload and management
+- **Reviews** (`/api/reviews`) - User reviews and ratings
+- **Events** (`/api/events`) - Park events management
+- **Admin** (`/api/admin`) - Administrative operations
 
-Use this space to show useful examples of how a project can be used. Additional screenshots, code examples and demos work well in this space. You may also link to more resources.
+### API Documentation
 
-_For more examples, please refer to the [Documentation](https://example.com)_
+Interactive API documentation is automatically available at:
+- Swagger UI: `http://localhost:8000/docs`
+- ReDoc: `http://localhost:8000/redoc`
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
+## Project Structure
 
+```
+BarzMap-server/
+├── api/                    # API route handlers
+│   ├── AdminRouter.py
+│   ├── EquipmentRouter.py
+│   ├── EventsRouter.py
+│   ├── ImagesRouter.py
+│   ├── ParkEquipmentRouter.py
+│   ├── ParksRouter.py
+│   ├── ReviewsRouter.py
+│   └── UsersRouter.py
+├── alembic/                # Database migrations
+│   └── versions/
+├── docs/                   # Documentation
+│   ├── DATABASE_SCHEMA.md
+│   ├── POSTGRES_SETUP.md
+│   └── TECH_PLAN.md
+├── models/                 # Data models
+│   ├── database/          # SQLAlchemy models
+│   └── requests/          # Pydantic request models
+├── services/              # Business logic
+│   ├── Authentication/    # Auth0 integration
+│   ├── Database/         # Database operations
+│   └── Manager/          # Business logic managers
+│       ├── CloudFlare.py # Image storage service
+│       └── ParkSubmissions.py
+├── tests/                 # Test files
+├── main.py                # FastAPI application entry point
+├── requirements.txt       # Python dependencies
+├── docker-compose.yml     # Docker Compose configuration
+└── alembic.ini           # Alembic configuration
+```
 
-<!-- ROADMAP -->
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+## Testing
+
+Run tests using pytest:
+
+```sh
+# Run all tests
+pytest
+
+# Run with coverage
+pytest --cov=. --cov-report=html
+
+# Run specific test file
+pytest tests/test_parks.py
+```
+
+For testing, use the test database configuration in `docker-compose.test.yml`:
+
+```sh
+docker-compose -f docker-compose.test.yml up -d
+pytest
+```
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+## Database Migrations
+
+This project uses Alembic for database migrations.
+
+### Creating a new migration
+
+```sh
+alembic revision --autogenerate -m "description of changes"
+```
+
+### Applying migrations
+
+```sh
+alembic upgrade head
+```
+
+### Rolling back migrations
+
+```sh
+alembic downgrade -1
+```
+
+See `docs/DATABASE_SCHEMA.md` for the complete database schema documentation.
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+## Documentation
+
+Additional documentation is available in the `docs/` directory:
+
+- **[DATABASE_SCHEMA.md](docs/DATABASE_SCHEMA.md)** - Complete database schema documentation
+- **[POSTGRES_SETUP.md](docs/POSTGRES_SETUP.md)** - PostgreSQL setup guide
+- **[TECH_PLAN.md](docs/TECH_PLAN.md)** - Technical plan and roadmap
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
 ## Roadmap
 
-- [x] Add Changelog
-- [x] Add back to top links
-- [ ] Add Additional Templates w/ Examples
-- [ ] Add "components" document to easily copy & paste sections of the readme
-- [ ] Multi-language Support
-    - [ ] Chinese
-    - [ ] Spanish
+### Phase 1: Core API ✅
+- [x] Database schema design and implementation
+- [x] Core CRUD operations for all entities
+- [x] API documentation (Swagger/OpenAPI)
+- [x] Basic location-based queries
 
-See the [open issues](https://github.com/othneildrew/Best-README-Template/issues) for a full list of proposed features (and known issues).
+### Phase 2: Admin & Moderation 🚧
+- [ ] Role-based access control (RBAC)
+- [ ] Park approval workflow endpoints
+- [ ] Image moderation endpoints
+- [ ] Content moderation tools
+
+### Phase 3: Advanced Features 📋
+- [ ] Advanced geospatial queries (PostGIS)
+- [ ] AI-powered equipment detection from images
+- [ ] Real-time notifications
+- [ ] Analytics and reporting
+
+See the [open issues](https://github.com/your_username/BarzMap-server/issues) for a full list of proposed features and known issues.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
-
-
-<!-- CONTRIBUTING -->
 ## Contributing
 
 Contributions are what make the open source community such an amazing place to learn, inspire, and create. Any contributions you make are **greatly appreciated**.
-
-If you have a suggestion that would make this better, please fork the repo and create a pull request. You can also simply open an issue with the tag "enhancement".
-Don't forget to give the project a star! Thanks again!
 
 1. Fork the Project
 2. Create your Feature Branch (`git checkout -b feature/AmazingFeature`)
@@ -197,74 +288,24 @@ Don't forget to give the project a star! Thanks again!
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
-
-
-<!-- LICENSE -->
 ## License
 
 Distributed under the MIT License. See `LICENSE.txt` for more information.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
-
-
-<!-- CONTACT -->
-## Contact
-
-Your Name - [@your_twitter](https://twitter.com/your_username) - email@example.com
-
-Project Link: [https://github.com/your_username/repo_name](https://github.com/your_username/repo_name)
-
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
-
-
-
-<!-- ACKNOWLEDGMENTS -->
-## Acknowledgments
-
-Use this space to list resources you find helpful and would like to give credit to. I've included a few of my favorites to kick things off!
-
-* [Choose an Open Source License](https://choosealicense.com)
-* [GitHub Emoji Cheat Sheet](https://www.webpagefx.com/tools/emoji-cheat-sheet)
-* [Malven's Flexbox Cheatsheet](https://flexbox.malven.co/)
-* [Malven's Grid Cheatsheet](https://grid.malven.co/)
-* [Img Shields](https://shields.io)
-* [GitHub Pages](https://pages.github.com)
-* [Font Awesome](https://fontawesome.com)
-* [React Icons](https://react-icons.github.io/react-icons/search)
-
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
-
-
-
 <!-- MARKDOWN LINKS & IMAGES -->
-<!-- https://www.markdownguide.org/basic-syntax/#reference-style-links -->
-[contributors-shield]: https://img.shields.io/github/contributors/othneildrew/Best-README-Template.svg?style=for-the-badge
-[contributors-url]: https://github.com/othneildrew/Best-README-Template/graphs/contributors
-[forks-shield]: https://img.shields.io/github/forks/othneildrew/Best-README-Template.svg?style=for-the-badge
-[forks-url]: https://github.com/othneildrew/Best-README-Template/network/members
-[stars-shield]: https://img.shields.io/github/stars/othneildrew/Best-README-Template.svg?style=for-the-badge
-[stars-url]: https://github.com/othneildrew/Best-README-Template/stargazers
-[issues-shield]: https://img.shields.io/github/issues/othneildrew/Best-README-Template.svg?style=for-the-badge
-[issues-url]: https://github.com/othneildrew/Best-README-Template/issues
-[license-shield]: https://img.shields.io/github/license/othneildrew/Best-README-Template.svg?style=for-the-badge
-[license-url]: https://github.com/othneildrew/Best-README-Template/blob/master/LICENSE.txt
-[linkedin-shield]: https://img.shields.io/badge/-LinkedIn-black.svg?style=for-the-badge&logo=linkedin&colorB=555
-[linkedin-url]: https://linkedin.com/in/othneildrew
-[product-screenshot]: images/screenshot.png
-[Next.js]: https://img.shields.io/badge/next.js-000000?style=for-the-badge&logo=nextdotjs&logoColor=white
-[Next-url]: https://nextjs.org/
-[React.js]: https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB
-[React-url]: https://reactjs.org/
-[Vue.js]: https://img.shields.io/badge/Vue.js-35495E?style=for-the-badge&logo=vuedotjs&logoColor=4FC08D
-[Vue-url]: https://vuejs.org/
-[Angular.io]: https://img.shields.io/badge/Angular-DD0031?style=for-the-badge&logo=angular&logoColor=white
-[Angular-url]: https://angular.io/
-[Svelte.dev]: https://img.shields.io/badge/Svelte-4A4A55?style=for-the-badge&logo=svelte&logoColor=FF3E00
-[Svelte-url]: https://svelte.dev/
-[Laravel.com]: https://img.shields.io/badge/Laravel-FF2D20?style=for-the-badge&logo=laravel&logoColor=white
-[Laravel-url]: https://laravel.com
-[Bootstrap.com]: https://img.shields.io/badge/Bootstrap-563D7C?style=for-the-badge&logo=bootstrap&logoColor=white
-[Bootstrap-url]: https://getbootstrap.com
-[JQuery.com]: https://img.shields.io/badge/jQuery-0769AD?style=for-the-badge&logo=jquery&logoColor=white
-[JQuery-url]: https://jquery.com 
+[FastAPI]: https://img.shields.io/badge/FastAPI-005571?style=for-the-badge&logo=fastapi
+[FastAPI-url]: https://fastapi.tiangolo.com/
+[PostgreSQL]: https://img.shields.io/badge/PostgreSQL-316192?style=for-the-badge&logo=postgresql&logoColor=white
+[PostgreSQL-url]: https://www.postgresql.org/
+[SQLAlchemy]: https://img.shields.io/badge/SQLAlchemy-1C1C1C?style=for-the-badge&logo=sqlalchemy&logoColor=white
+[SQLAlchemy-url]: https://www.sqlalchemy.org/
+[Alembic]: https://img.shields.io/badge/Alembic-1C1C1C?style=for-the-badge
+[Alembic-url]: https://alembic.sqlalchemy.org/
+[Pytest]: https://img.shields.io/badge/Pytest-0A9EDC?style=for-the-badge&logo=pytest&logoColor=white
+[Pytest-url]: https://pytest.org/
+[Docker]: https://img.shields.io/badge/Docker-2496ED?style=for-the-badge&logo=docker&logoColor=white
+[Docker-url]: https://www.docker.com/
+[Auth0]: https://img.shields.io/badge/Auth0-EB5424?style=for-the-badge&logo=auth0&logoColor=white
+[Auth0-url]: https://auth0.com/
