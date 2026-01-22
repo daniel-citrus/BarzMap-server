@@ -56,6 +56,7 @@ async def submit_park(
 ) -> ParkSubmissionResponse:
     """Submit a new park with images and equipment."""
     await process_submission(submission, db)
+    
     return ParkSubmissionResponse(
         message="Park submission processed successfully",
         submitted=True
