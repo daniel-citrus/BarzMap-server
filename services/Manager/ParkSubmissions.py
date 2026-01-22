@@ -1,14 +1,22 @@
 from fastapi import HTTPException
+from pydantic import BaseModel, Field
 from models.requests.ParkSubmissionRequest import ParkSubmissionRequest, ImageSubmission
 from sqlalchemy.orm import Session
 from services.Database import get_equipment
 from services.Adapters.CloudflareAdapter import upload_images
-from typing import Tuple, List
+from services.Database.ParksTable import create_park
+from typing import List
+
+
+class ValidationResult(BaseModel):
+    """Result of park submission validation."""
+    is_valid: bool = Field(..., description="Whether the submission passed validation")
+    errors: List[str] = Field(default_factory=list, description="List of validation error messages")
 
 
 def validate_submission(
     submission: ParkSubmissionRequest, db: Session
-) -> Tuple[bool, List[str]]:
+) -> ValidationResult:
     """
     Validate park submission business logic.
     """
@@ -33,19 +41,22 @@ def validate_submission(
     # - Check image format/size limits
     # etc.
 
-    return len(errors) == 0, errors
+    return ValidationResult(
+        is_valid=len(errors) == 0,
+        errors=errors
+    )
 
 
 async def process_submission(submission: ParkSubmissionRequest, db: Session):
     try:
-        is_valid, errors = validate_submission(submission, db)
+        validation_result = validate_submission(submission, db)
 
-        if not is_valid:
+        if not validation_result.is_valid:
             raise HTTPException(
                 status_code=400,
                 detail={
                     "message": "Park submission validation failed",
-                    "errors": errors,
+                    "errors": validation_result.errors,
                 },
             )
 
@@ -53,6 +64,7 @@ async def process_submission(submission: ParkSubmissionRequest, db: Session):
             uploaded_images = await upload_images(submission.images)
 
         # TODO: Create park record in database
+
         # TODO: Link equipment to park
         # TODO: Return created park data
 

@@ -50,19 +50,40 @@ class UploadedImage(BaseModel):
     class Config:
         extra = "allow"
 
+async def upload_single_image(index: int, image: ImageSubmission):
+    """Upload a single image to Cloudflare."""
+    try:
+        uploaded = await client.images.v1.create(
+            account_id=account_id,
+            # file=image.file_data,  # Reserved for future file upload support
+            url=image.url,
+        )
+
+        uploaded_dict = (
+            uploaded if isinstance(uploaded, dict) else uploaded.__dict__
+        )
+        return UploadedImage(**uploaded_dict), None
+    except CloudflareAPIError as e:
+        error_msg = f"Cloudflare API error uploading image {index + 1}: {str(e)}"
+        logger.error(error_msg)
+        return None, {"index": index, "error": "API error", "message": str(e)}
+    except ValueError as e:
+        error_msg = f"Invalid image data at index {index + 1}: {str(e)}"
+        logger.warning(error_msg)
+        return None, {"index": index, "error": "Invalid input", "message": str(e)}
+    except Exception as e:
+        error_msg = f"Unexpected error uploading image {index + 1}: {str(e)}"
+        logger.error(error_msg, exc_info=True)
+        return None, {
+            "index": index,
+            "error": "Unexpected error",
+            "message": str(e),
+        }
+
 
 async def upload_images(images: List[ImageSubmission]) -> List[UploadedImage]:
     """
-    Upload multiple images to Cloudflare Images API via URL.
-
-    Args:
-        images: List of ImageSubmission objects containing image URLs and metadata
-
-    Returns:
-        List of UploadedImage objects with Cloudflare image details
-
-    Raises:
-        HTTPException: If no images provided, service unavailable, or all uploads fail
+    Upload multiple images to Cloudflare Images API via raw data or URL.
     """
     if not images:
         raise HTTPException(status_code=400, detail="No images provided for upload")
@@ -83,36 +104,6 @@ async def upload_images(images: List[ImageSubmission]) -> List[UploadedImage]:
 
     uploaded_images = []
     failed_uploads = []
-
-    async def upload_single_image(index: int, image: ImageSubmission):
-        """Upload a single image to Cloudflare."""
-        try:
-            uploaded = await client.images.v1.create(
-                account_id=account_id,
-                # file=image.file_data,  # Reserved for future file upload support
-                url=image.url,
-            )
-
-            uploaded_dict = (
-                uploaded if isinstance(uploaded, dict) else uploaded.__dict__
-            )
-            return UploadedImage(**uploaded_dict), None
-        except CloudflareAPIError as e:
-            error_msg = f"Cloudflare API error uploading image {index + 1}: {str(e)}"
-            logger.error(error_msg)
-            return None, {"index": index, "error": "API error", "message": str(e)}
-        except ValueError as e:
-            error_msg = f"Invalid image data at index {index + 1}: {str(e)}"
-            logger.warning(error_msg)
-            return None, {"index": index, "error": "Invalid input", "message": str(e)}
-        except Exception as e:
-            error_msg = f"Unexpected error uploading image {index + 1}: {str(e)}"
-            logger.error(error_msg, exc_info=True)
-            return None, {
-                "index": index,
-                "error": "Unexpected error",
-                "message": str(e),
-            }
 
     upload_tasks = [
         upload_single_image(index, image) for index, image in enumerate(images)
