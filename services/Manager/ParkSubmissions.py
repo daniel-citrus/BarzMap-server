@@ -5,7 +5,10 @@ from sqlalchemy.orm import Session
 from services.Database import get_equipment
 from services.Adapters.CloudflareAdapter import upload_images
 from services.Database.ParksTable import create_park
+from services.Database.ParkEquipmentTable import add_equipment_to_park
+from services.Database.ImagesTable import create_image
 from typing import List
+from decimal import Decimal
 
 
 class ValidationResult(BaseModel):
@@ -60,12 +63,53 @@ async def process_submission(submission: ParkSubmissionRequest, db: Session):
                 },
             )
 
+        uploaded_images = None
+
         if submission.images and len(submission.images) <= 5:
             uploaded_images = await upload_images(submission.images)
 
-        # TODO: Create park record in database
-
-        # TODO: Link equipment to park
+        # Create park record in database
+        park = create_park(
+            db=db,
+            name=submission.name,
+            latitude=Decimal(str(submission.latitude)),
+            longitude=Decimal(str(submission.longitude)),
+            description=submission.description,
+            address=submission.address,
+            city=submission.city,
+            state=submission.state,
+            country=submission.country,
+            postal_code=submission.postal_code,
+            submitted_by=submission.submitted_by,
+            status="pending",
+        )
+        
+        # Link equipment to park
+        if submission.equipment_ids:
+            for equipment_id in submission.equipment_ids:
+                add_equipment_to_park(
+                    db=db,
+                    park_id=park.id,
+                    equipment_id=equipment_id,
+                )
+        
+        # Link images to park
+        if uploaded_images:
+            for index, image in enumerate(uploaded_images):
+                image_url = image.variants[0] if image.variants else None
+                if not image_url:
+                    continue
+                
+                create_image(
+                    db=db,
+                    park_id=park.id,
+                    image_url=image_url,
+                    uploaded_by=submission.submitted_by,
+                    thumbnail_url=image.variants[-1] if image.variants and len(image.variants) > 1 else None,
+                    is_primary=(index == 0),
+                    is_approved=False,
+                )
+            
         # TODO: Return created park data
 
     except HTTPException:

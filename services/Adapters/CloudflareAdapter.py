@@ -8,9 +8,9 @@ Handles URL-based image uploads and error management.
 import os
 import asyncio
 from cloudflare import AsyncCloudflare
-from typing import List
+from typing import List, Optional
 from fastapi import HTTPException
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 import logging
 
 try:
@@ -50,7 +50,28 @@ class UploadedImage(BaseModel):
     class Config:
         extra = "allow"
 
-async def upload_single_image(index: int, image: ImageSubmission):
+
+class ImageUploadError(BaseModel):
+    """Model representing an error that occurred during image upload."""
+    
+    index: int = Field(..., description="Index of the image that failed to upload")
+    error: str = Field(..., description="Type of error that occurred")
+    message: str = Field(..., description="Detailed error message")
+
+
+class SingleImageUploadResult(BaseModel):
+    """Result of uploading a single image to Cloudflare."""
+    
+    uploaded_image: Optional[UploadedImage] = Field(
+        None, 
+        description="The uploaded image if upload was successful"
+    )
+    error: Optional[ImageUploadError] = Field(
+        None,
+        description="Error information if upload failed"
+    )
+
+async def upload_single_image(index: int, image: ImageSubmission) -> SingleImageUploadResult:
     """Upload a single image to Cloudflare."""
     try:
         uploaded = await client.images.v1.create(
@@ -62,23 +83,43 @@ async def upload_single_image(index: int, image: ImageSubmission):
         uploaded_dict = (
             uploaded if isinstance(uploaded, dict) else uploaded.__dict__
         )
-        return UploadedImage(**uploaded_dict), None
+        return SingleImageUploadResult(
+            uploaded_image=UploadedImage(**uploaded_dict),
+            error=None
+        )
     except CloudflareAPIError as e:
         error_msg = f"Cloudflare API error uploading image {index + 1}: {str(e)}"
         logger.error(error_msg)
-        return None, {"index": index, "error": "API error", "message": str(e)}
+        return SingleImageUploadResult(
+            uploaded_image=None,
+            error=ImageUploadError(
+                index=index,
+                error="API error",
+                message=str(e)
+            )
+        )
     except ValueError as e:
         error_msg = f"Invalid image data at index {index + 1}: {str(e)}"
         logger.warning(error_msg)
-        return None, {"index": index, "error": "Invalid input", "message": str(e)}
+        return SingleImageUploadResult(
+            uploaded_image=None,
+            error=ImageUploadError(
+                index=index,
+                error="Invalid input",
+                message=str(e)
+            )
+        )
     except Exception as e:
         error_msg = f"Unexpected error uploading image {index + 1}: {str(e)}"
         logger.error(error_msg, exc_info=True)
-        return None, {
-            "index": index,
-            "error": "Unexpected error",
-            "message": str(e),
-        }
+        return SingleImageUploadResult(
+            uploaded_image=None,
+            error=ImageUploadError(
+                index=index,
+                error="Unexpected error",
+                message=str(e)
+            )
+        )
 
 
 async def upload_images(images: List[ImageSubmission]) -> List[UploadedImage]:
@@ -110,11 +151,11 @@ async def upload_images(images: List[ImageSubmission]) -> List[UploadedImage]:
     ]
     results = await asyncio.gather(*upload_tasks)
 
-    for uploaded, error in results:
-        if uploaded:
-            uploaded_images.append(uploaded)
-        elif error:
-            failed_uploads.append(error)
+    for result in results:
+        if result.uploaded_image:
+            uploaded_images.append(result.uploaded_image)
+        elif result.error:
+            failed_uploads.append(result.error.model_dump())
 
     if not uploaded_images and failed_uploads:
         raise HTTPException(
