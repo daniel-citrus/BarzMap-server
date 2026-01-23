@@ -1,7 +1,8 @@
+"""
+Response models for events endpoints.
+"""
 from pydantic import BaseModel, ConfigDict
 from typing import Optional
-from uuid import UUID
-from datetime import date, time, datetime
 
 
 class EventResponse(BaseModel):
@@ -22,3 +23,4 @@ class EventResponse(BaseModel):
 class EventsListResponse(BaseModel):
     """Response wrapper for events list."""
     data: list[EventResponse]
+

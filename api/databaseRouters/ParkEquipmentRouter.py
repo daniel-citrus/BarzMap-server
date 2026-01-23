@@ -14,9 +14,9 @@ from services.Database import (
     get_parks_by_equipment,
     remove_all_equipment_from_park,
 )
-from models.requests.park_equipment import ParkEquipmentResponse
-from models.requests.equipment import EquipmentResponse
-from models.requests.parks import ParkResponse
+from models.responses.ParkEquipmentResponses import ParkEquipmentResponse
+from models.responses.EquipmentResponses import EquipmentResponse
+from models.responses.ParksResponses import ParkResponse
 
 router = APIRouter()
 

@@ -14,7 +14,8 @@ from services.Database import (
     update_image,
     delete_image,
 )
-from models.requests.images import ImageResponse, ImageCreate, ImageUpdate
+from models.requests.images import ImageCreate, ImageUpdate
+from models.responses.ImagesResponses import ImageResponse
 
 router = APIRouter()
 

@@ -15,8 +15,8 @@ from services.Database import (
     get_equipment_by_park,
     get_images_by_park,
 )
-from models.requests.admin import (
-    ModerationComment,
+from models.requests.admin import ModerationComment
+from models.responses.AdminResponses import (
     ParkSubmissionsListResponse,
     ParkSubmissionItem,
     PaginationInfo,

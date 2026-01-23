@@ -7,7 +7,7 @@ from typing import Optional
 from datetime import datetime
 from services.Database import get_db
 from services.Database.EventsTable import get_events, haversine_distance
-from models.requests.events import EventResponse, EventsListResponse
+from models.responses.EventsResponses import EventResponse, EventsListResponse
 
 router = APIRouter()
 

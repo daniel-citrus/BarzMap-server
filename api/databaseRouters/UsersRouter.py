@@ -15,7 +15,8 @@ from services.Database import (
     update_user,
     delete_user,
 )
-from models.requests.users import UserCreate, UserUpdate, UserResponse
+from models.requests.users import UserCreate, UserUpdate
+from models.responses.UsersResponses import UserResponse
 
 router = APIRouter()
 

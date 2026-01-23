@@ -1,20 +1,13 @@
 from fastapi import HTTPException
-from pydantic import BaseModel, Field
 from models.requests.ParkSubmissionRequest import ParkSubmissionRequest, ImageSubmission
+from models.responses.ParkSubmissionResponse import ParkSubmissionResponse, ValidationResult
 from sqlalchemy.orm import Session
 from services.Database import get_equipment
 from services.Adapters.CloudflareAdapter import upload_images
 from services.Database.ParksTable import create_park
 from services.Database.ParkEquipmentTable import add_equipment_to_park
 from services.Database.ImagesTable import create_image
-from typing import List
 from decimal import Decimal
-
-
-class ValidationResult(BaseModel):
-    """Result of park submission validation."""
-    is_valid: bool = Field(..., description="Whether the submission passed validation")
-    errors: List[str] = Field(default_factory=list, description="List of validation error messages")
 
 
 def validate_submission(
@@ -50,7 +43,7 @@ def validate_submission(
     )
 
 
-async def process_submission(submission: ParkSubmissionRequest, db: Session):
+async def process_submission(submission: ParkSubmissionRequest, db: Session) -> ParkSubmissionResponse:
     try:
         validation_result = validate_submission(submission, db)
 
@@ -94,6 +87,7 @@ async def process_submission(submission: ParkSubmissionRequest, db: Session):
                 )
         
         # Link images to park
+        images_uploaded_count = 0
         if uploaded_images:
             for index, image in enumerate(uploaded_images):
                 image_url = image.variants[0] if image.variants else None
@@ -109,8 +103,19 @@ async def process_submission(submission: ParkSubmissionRequest, db: Session):
                     is_primary=(index == 0),
                     is_approved=False,
                 )
-            
-        # TODO: Return created park data
+                images_uploaded_count += 1
+        
+
+        return ParkSubmissionResponse(
+            park_id=park.id,
+            name=park.name,
+            status=park.status,
+            submitted_by=park.submitted_by,
+            submit_date=park.submit_date,
+            created_at=park.created_at,
+            images_uploaded=images_uploaded_count,
+            equipment_count=len(submission.equipment_ids) if submission.equipment_ids else 0,
+        )
 
     except HTTPException:
         raise

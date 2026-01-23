@@ -15,7 +15,8 @@ from services.Database import (
     update_review,
     delete_review,
 )
-from models.requests.reviews import ReviewResponse, ReviewCreate, ReviewUpdate
+from models.requests.reviews import ReviewCreate, ReviewUpdate
+from models.responses.ReviewsResponses import ReviewResponse
 
 router = APIRouter()
 
