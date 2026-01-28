@@ -1,29 +1,31 @@
 """
 API routers for BarzMap.
-Consolidates all API routers for easy import.
+Organized by access level: authenticated and admin.
 """
-from .databaseRouters import (
-    users_router,
-    parks_router,
+from .authenticated import parks_router, submissions_router
+from .admin import (
+    admin_router,
+    parks_router as admin_parks_router,
     equipment_router,
     images_router,
     reviews_router,
     park_equipment_router,
     events_router,
-    admin_router,
+    users_router,
 )
 
-from .MainRouter import router as main_router
-
 __all__ = [
-    "users_router",
+    # Authenticated routers
     "parks_router",
+    "submissions_router",
+    # Admin routers
+    "admin_router",
+    "admin_parks_router",
     "equipment_router",
     "images_router",
     "reviews_router",
     "park_equipment_router",
     "events_router",
-    "admin_router",
-    "main_router",
+    "users_router",
 ]
 

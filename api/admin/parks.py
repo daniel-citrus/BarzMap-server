@@ -70,7 +70,7 @@ def get_parks_in_location(
     max_latitude: float = Query(..., description="Maximum latitude"),
     min_longitude: float = Query(..., description="Minimum longitude"),
     max_longitude: float = Query(..., description="Maximum longitude"),
-    status: Optional[str] = Query("approved", regex="^(pending|approved|rejected)$"),
+    status: Optional[str] = Query(..., regex="^(pending|approved|rejected)$"),
     db: Session = Depends(get_db)
 ):
     """Get parks within a geographic bounding box."""

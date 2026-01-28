@@ -1,5 +1,5 @@
 """
-API routes for Images.
+Authenticated image endpoints - require user authentication.
 """
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
@@ -11,10 +11,8 @@ from services.Database import (
     get_image,
     get_images_by_park,
     get_primary_image,
-    update_image,
-    delete_image,
 )
-from models.requests.images import ImageCreate, ImageUpdate
+from models.requests.images import ImageCreate
 from models.responses.ImagesResponses import ImageResponse
 
 router = APIRouter()
@@ -77,38 +75,4 @@ def get_primary_image_for_park(
     if not image:
         raise HTTPException(status_code=404, detail="Primary image not found")
     return image
-
-
-@router.put("/{image_id}", response_model=ImageResponse, tags=["Images"])
-def update_image_by_id(
-    image_id: UUID,
-    image_data: ImageUpdate,
-    db: Session = Depends(get_db)
-):
-    """Update an image."""
-    image = update_image(
-        db=db,
-        image_id=image_id,
-        image_url=image_data.image_url,
-        thumbnail_url=image_data.thumbnail_url,
-        alt_text=image_data.alt_text,
-        is_approved=image_data.is_approved,
-        is_primary=image_data.is_primary,
-        is_inappropriate=image_data.is_inappropriate,
-    )
-    if not image:
-        raise HTTPException(status_code=404, detail="Image not found")
-    return image
-
-
-@router.delete("/{image_id}", tags=["Images"])
-def delete_image_by_id(
-    image_id: UUID,
-    db: Session = Depends(get_db)
-):
-    """Delete an image."""
-    success = delete_image(db, image_id)
-    if not success:
-        raise HTTPException(status_code=404, detail="Image not found")
-    return {"message": "Image deleted successfully"}
 

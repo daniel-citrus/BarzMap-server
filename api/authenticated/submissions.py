@@ -1,5 +1,5 @@
 """
-Main API router for park submissions.
+Authenticated park submission endpoints - require user authentication.
 """
 from fastapi import APIRouter, Depends, Body
 from sqlalchemy.orm import Session
@@ -17,20 +17,20 @@ class ParkSubmissionResponse(BaseModel):
     submitted: bool
 
 
-@router.post("/submit", response_model=ParkSubmissionResponse, tags=["Submissions"])
+@router.post("/", response_model=ParkSubmissionResponse, tags=["Submissions"])
 async def submit_park(
     submission: ParkSubmissionRequest = Body(
         ...,
         example={
-            "name": "Central Park Outdoor Gym",
-            "description": "A great outdoor workout park with multiple exercise stations and beautiful scenery.",
+            "name": "Washington Park",
+            "description": "A small outdoor gym located next to the Washington Park lower baseball field.",
             "latitude": 40.785091,
             "longitude": -73.968285,
             "address": "Central Park, Upper East Side",
-            "city": "New York",
-            "state": "NY",
+            "city": "Alameda",
+            "state": "CA",
             "country": "USA",
-            "postal_code": "10024",
+            "postal_code": "94501",
             "submitted_by": None,
             "images": [
                 {
@@ -55,7 +55,7 @@ async def submit_park(
     db: Session = Depends(get_db)
 ) -> ParkSubmissionResponse:
     """Submit a new park with images and equipment."""
-    await process_submission(submission, db)
+    submittedData = await process_submission(submission, db)
     
     return ParkSubmissionResponse(
         message="Park submission processed successfully",
