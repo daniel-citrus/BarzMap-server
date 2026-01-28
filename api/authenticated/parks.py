@@ -1,12 +1,19 @@
 """
 Authenticated park endpoints - require user authentication.
 """
-from fastapi import APIRouter, Depends, Query
+from fastapi import APIRouter, Depends, Query, HTTPException
 from sqlalchemy.orm import Session
 from typing import List, Optional
 from decimal import Decimal
+from uuid import UUID
 from models.responses.ParksResponses import ParkResponse
-from services.Database import get_db, get_all_parks, get_parks_by_location
+from services.Database import (
+    get_db,
+    get_all_parks,
+    get_parks_by_location,
+    get_park,
+    get_parks_by_status,
+)
 
 router = APIRouter()
 
@@ -40,4 +47,25 @@ def get_parks_in_location(
         max_longitude=Decimal(str(max_longitude)),
         status=status,
     )
+
+
+@router.get("/status/{status}", response_model=List[ParkResponse], tags=["Parks"])
+def get_parks_by_status_filter(
+    status: str,
+    db: Session = Depends(get_db)
+):
+    """Get all parks by status."""
+    return get_parks_by_status(db, status)
+
+
+@router.get("/{park_id}", response_model=ParkResponse, tags=["Parks"])
+def get_park_by_id(
+    park_id: UUID,
+    db: Session = Depends(get_db)
+):
+    """Get a park by ID."""
+    park = get_park(db, park_id)
+    if not park:
+        raise HTTPException(status_code=404, detail="Park not found")
+    return park
 

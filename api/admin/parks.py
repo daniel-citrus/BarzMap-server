@@ -9,8 +9,6 @@ from decimal import Decimal
 from services.Database import (
     get_db,
     create_park,
-    get_park,
-    get_parks_by_status,
     update_park,
     delete_park,
 )
@@ -40,27 +38,6 @@ def create_new_park(
         submitted_by=park_data.submitted_by,
         status=park_data.status or "pending",
     )
-
-
-@router.get("/status/{status}", response_model=List[ParkResponse], tags=["Parks"])
-def get_parks_by_status_filter(
-    status: str,
-    db: Session = Depends(get_db)
-):
-    """Get all parks by status."""
-    return get_parks_by_status(db, status)
-
-
-@router.get("/{park_id}", response_model=ParkResponse, tags=["Parks"])
-def get_park_by_id(
-    park_id: UUID,
-    db: Session = Depends(get_db)
-):
-    """Get a park by ID."""
-    park = get_park(db, park_id)
-    if not park:
-        raise HTTPException(status_code=404, detail="Park not found")
-    return park
 
 
 @router.put("/{park_id}", response_model=ParkResponse, tags=["Parks"])
