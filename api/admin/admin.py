@@ -35,20 +35,6 @@ def format_park_id(park_id: UUID) -> str:
     return f"SUB-{uuid_str[:8]}"
 
 
-def parse_submission_id(submission_id: str) -> Optional[UUID]:
-    """Parse submission ID like 'SUB-10342' back to UUID."""
-    # This is a simplified parser - in production you might want a mapping table
-    # For now, we'll try to find parks by matching the ID pattern
-    # Remove 'SUB-' prefix and try to match
-    if not submission_id.startswith('SUB-'):
-        return None
-    id_part = submission_id[4:]  # Remove 'SUB-' prefix
-    
-    # Since we can't directly convert, we'll need to search by matching
-    # For now, return None and handle in the endpoint
-    return None
-
-
 @router.get("/park-submissions", response_model=ParkSubmissionsListResponse, tags=["Admin"])
 def get_park_submissions(
     status: str = Query("pending", description="Status filter: pending, approved, denied, or all"),

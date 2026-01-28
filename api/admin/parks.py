@@ -3,16 +3,14 @@ API routes for Parks.
 """
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
-from typing import List, Optional
+from typing import List
 from uuid import UUID
 from decimal import Decimal
 from services.Database import (
     get_db,
     create_park,
     get_park,
-    get_all_parks,
     get_parks_by_status,
-    get_parks_by_location,
     update_park,
     delete_park,
 )
@@ -44,17 +42,6 @@ def create_new_park(
     )
 
 
-@router.get("/", response_model=List[ParkResponse], tags=["Parks"])
-def get_parks(
-    skip: int = Query(0, ge=0),
-    limit: int = Query(100, ge=1, le=100),
-    status: Optional[str] = Query(None, regex="^(pending|approved|rejected)$"),
-    db: Session = Depends(get_db)
-):
-    """Get all parks with optional filtering."""
-    return get_all_parks(db, skip=skip, limit=limit, status=status)
-
-
 @router.get("/status/{status}", response_model=List[ParkResponse], tags=["Parks"])
 def get_parks_by_status_filter(
     status: str,
@@ -62,26 +49,6 @@ def get_parks_by_status_filter(
 ):
     """Get all parks by status."""
     return get_parks_by_status(db, status)
-
-
-@router.get("/location", response_model=List[ParkResponse], tags=["Parks"])
-def get_parks_in_location(
-    min_latitude: float = Query(..., description="Minimum latitude"),
-    max_latitude: float = Query(..., description="Maximum latitude"),
-    min_longitude: float = Query(..., description="Minimum longitude"),
-    max_longitude: float = Query(..., description="Maximum longitude"),
-    status: Optional[str] = Query(..., regex="^(pending|approved|rejected)$"),
-    db: Session = Depends(get_db)
-):
-    """Get parks within a geographic bounding box."""
-    return get_parks_by_location(
-        db=db,
-        min_latitude=Decimal(str(min_latitude)),
-        max_latitude=Decimal(str(max_latitude)),
-        min_longitude=Decimal(str(min_longitude)),
-        max_longitude=Decimal(str(max_longitude)),
-        status=status,
-    )
 
 
 @router.get("/{park_id}", response_model=ParkResponse, tags=["Parks"])

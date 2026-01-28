@@ -29,7 +29,7 @@ def seed_users(db: Session) -> dict[str, User]:
         {
             "auth0_id": "auth0|test_user_1",
             "email": "testuser1@example.com",
-            "name": "Test User One",
+            "name": "Daniel",
             "role": "user",
             "is_active": True,
         },
@@ -77,60 +77,46 @@ def seed_parks(db: Session, users: dict[str, User]) -> list[Park]:
     """Seed test parks and return list of created parks."""
     parks_data = [
         {
-            "name": "Pecan Grove Park",
-            "description": "Community park in Rowlett with outdoor fitness equipment and recreational facilities",
-            "latitude": Decimal("32.901722222"),
-            "longitude": Decimal("-96.548666666"),
-            "address": "5300 Main St, Rowlett, TX 75088",
-            "city": "Rowlett",
-            "state": "TX",
-            "country": "USA",
-            "postal_code": "75088",
-            "status": "approved",
-            "submitted_by": users["testuser1@example.com"].id,
-            "approved_by": users["admin@example.com"].id,
-        },
-        {
-            "name": "Springfield Park",
-            "description": "Community park in Rowlett with outdoor fitness equipment and recreational facilities",
-            "latitude": Decimal("32.9110278"),
-            "longitude": Decimal("-96.5901944"),
-            "address": "5501 Antioch Dr, Rowlett, TX 75089",
-            "city": "Rowlett",
-            "state": "TX",
-            "country": "USA",
-            "postal_code": "75089",
-            "status": "pending",
-            "submitted_by": users["testuser1@example.com"].id,
-            "approved_by": users["admin@example.com"].id,
-        },
-        {
-            "name": "Barras Insurgentes \"Spartans Streetworkout\"",
-            "description": "Street workout park in Mexico City with calisthenics equipment",
-            "latitude": Decimal("19.42406778677866"),
-            "longitude": Decimal("-99.16194404296651"),
-            "address": "Av Chapultepec 276, Roma Nte., Cuauhtémoc, 06700 Ciudad de México, CDMX, Mexico",
-            "city": "Ciudad de México",
+            "name": "Barras Paralelas",
+            "description": "Street workout park with Calisthenics equipment",
+            "latitude": Decimal("19.42854080382731"),
+            "longitude": Decimal("-99.16167777993643"),
+            "address": "Calle niza y av.chapultepec 276, Av Chapultepec 282, Centro Urbano Pdte. Juárez, Roma Nte., Cuauhtémoc",
+            "city": "Mexico City",
             "state": "CDMX",
             "country": "Mexico",
             "postal_code": "06700",
-            "status": "rejected",
+            "status": "pending",
             "submitted_by": users["testuser1@example.com"].id,
-            "approved_by": users["admin@example.com"].id,
+            "approved_by": None,
         },
         {
-            "name": "San Leandro Marina Park",
-            "description": "Marina park in San Leandro with outdoor fitness equipment and waterfront access",
-            "latitude": Decimal("19.42406778677866"),
-            "longitude": Decimal("-99.16194404296651"),
-            "address": "13791 Monarch Bay Dr, San Leandro, CA 94577",
+            "name": "Marina Park",
+            "description": "Community park in Rowlett with outdoor fitness equipment and recreational facilities",
+            "latitude": Decimal("37.69171309582851"),
+            "longitude": Decimal("-122.18448585621984"), 
+            "address": "14001 Monarch Bay Drive",
             "city": "San Leandro",
             "state": "CA",
             "country": "USA",
             "postal_code": "94577",
             "status": "pending",
             "submitted_by": users["testuser1@example.com"].id,
-            "approved_by": users["admin@example.com"].id,
+            "approved_by": None,
+        },
+        {
+            "name": "Southgate Park",
+            "description": "Blue turf workout station with calisthenics equipment.",
+            "latitude": Decimal("37.63500657572622"),
+            "longitude": Decimal("-122.09546165890184"),
+            "address": "26874 Contessa Street",
+            "city": "Hayward",
+            "state": "CA",
+            "country": "USA",
+            "postal_code": "94545",
+            "status": "pending",
+            "submitted_by": users["testuser1@example.com"].id,
+            "approved_by": None,
         },
     ]
     
@@ -261,15 +247,6 @@ def seed_images(db: Session, parks: list[Park], users: dict[str, User]):
             "is_approved": True,
             "is_primary": True,
         },
-        {
-            "park_id": parks[3].id,
-            "uploaded_by": users["testuser1@example.com"].id,
-            "image_url": "https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=1200&h=800&fit=crop",
-            "thumbnail_url": "https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=300&h=300&fit=crop",
-            "alt_text": "San Leandro Marina Park waterfront view",
-            "is_approved": True,
-            "is_primary": True,
-        },
     ]
     
     for image_data in images_data:
@@ -352,33 +329,6 @@ def seed_events(db: Session, parks: list[Park], users: dict[str, User]):
             "created_by_email": "testuser1@example.com",
         },
         {
-            "park_name": "Dolores Park",
-            "name": "Sunset Fitness Bootcamp",
-            "description": "High-intensity interval training session with bodyweight exercises. Meet at the tennis courts.",
-            "host": "SF Fitness Bootcamp",
-            "weekday": 3,  # Thursday
-            "event_time": time(18, 0),
-            "created_by_email": "testuser2@example.com",
-        },
-        {
-            "park_name": "Marina Green",
-            "name": "Marina Green Running Club",
-            "description": "Weekly group run along the waterfront with views of the Golden Gate Bridge. 3, 5, and 7 mile routes available.",
-            "host": "Marina Green Running Club",
-            "weekday": 0,  # Monday
-            "event_time": time(7, 0),
-            "created_by_email": "testuser1@example.com",
-        },
-        {
-            "park_name": "Marina Green",
-            "name": "Outdoor Strength Training",
-            "description": "Functional strength training using park equipment and bodyweight exercises. Suitable for all fitness levels.",
-            "host": "Bay Area Fitness",
-            "weekday": 4,  # Friday
-            "event_time": time(17, 30),
-            "created_by_email": "testuser2@example.com",
-        },
-        {
             "park_name": "Crissy Field",
             "name": "Beach Volleyball Tournament",
             "description": "Weekly beach volleyball games. Teams welcome, or join as a free agent. All skill levels.",
@@ -411,186 +361,6 @@ def seed_events(db: Session, parks: list[Park], users: dict[str, User]):
             "description": "Bodyweight training class focusing on pull-ups, dips, and core work using the park's fitness equipment.",
             "host": "Oakland Calisthenics",
             "weekday": 1,  # Tuesday
-            "event_time": time(19, 0),
-            "created_by_email": "testuser2@example.com",
-        },
-        {
-            "park_name": "Cesar Chavez Park",
-            "name": "Kite Flying & Picnic Day",
-            "description": "Community gathering for kite flying enthusiasts. Bring your own kite or try one of ours. Picnic area available.",
-            "host": "Berkeley Kite Club",
-            "weekday": 6,  # Sunday
-            "event_time": time(11, 0),
-            "created_by_email": "testuser1@example.com",
-        },
-        {
-            "park_name": "Cesar Chavez Park",
-            "name": "Waterfront Fitness Circuit",
-            "description": "Full-body workout circuit using park equipment and natural features. Great for building strength and endurance.",
-            "host": "Berkeley Outdoor Fitness",
-            "weekday": 4,  # Friday
-            "event_time": time(17, 0),
-            "created_by_email": "testuser2@example.com",
-        },
-        {
-            "park_name": "Memorial Park",
-            "name": "Tennis Clinic for Beginners",
-            "description": "Free tennis instruction for beginners. Rackets provided. All ages welcome.",
-            "host": "Palo Alto Tennis Association",
-            "weekday": 5,  # Saturday
-            "event_time": time(10, 0),
-            "created_by_email": "testuser1@example.com",
-        },
-        {
-            "park_name": "Memorial Park",
-            "name": "Evening Fitness Walk",
-            "description": "Guided fitness walk through the park. Perfect for those looking for low-impact exercise.",
-            "host": "Palo Alto Wellness Group",
-            "weekday": 3,  # Thursday
-            "event_time": time(19, 0),
-            "created_by_email": "testuser2@example.com",
-        },
-        {
-            "park_name": "Alameda Beach",
-            "name": "Beach Volleyball League",
-            "description": "Competitive beach volleyball league. Registration required. Season runs through summer.",
-            "host": "Alameda Beach Sports",
-            "weekday": 5,  # Saturday
-            "event_time": time(15, 0),
-            "created_by_email": "testuser1@example.com",
-        },
-        {
-            "park_name": "Alameda Beach",
-            "name": "Sunrise Beach Workout",
-            "description": "Early morning beach workout combining running, calisthenics, and beach games. Start your weekend right!",
-            "host": "Alameda Fitness Collective",
-            "weekday": 6,  # Sunday
-            "event_time": time(7, 30),
-            "created_by_email": "testuser2@example.com",
-        },
-        {
-            "park_name": "Presidio of San Francisco",
-            "name": "Trail Running Group",
-            "description": "Explore the Presidio's extensive trail network with our weekly group run. Various distances available.",
-            "host": "Presidio Trail Runners",
-            "weekday": 6,  # Sunday
-            "event_time": time(8, 0),
-            "created_by_email": "testuser1@example.com",
-        },
-        {
-            "park_name": "Presidio of San Francisco",
-            "name": "Outdoor Adventure Fitness",
-            "description": "Combine hiking, strength training, and outdoor skills in this unique fitness adventure through the Presidio.",
-            "host": "SF Adventure Fitness",
-            "weekday": 5,  # Saturday
-            "event_time": time(9, 30),
-            "created_by_email": "testuser2@example.com",
-        },
-        {
-            "park_name": "Glen Park",
-            "name": "Community Garden & Fitness Day",
-            "description": "Join us for gardening followed by a community fitness session. Great way to connect with neighbors while staying active.",
-            "host": "Glen Park Community",
-            "weekday": 6,  # Sunday
-            "event_time": time(10, 0),
-            "created_by_email": "testuser1@example.com",
-        },
-        {
-            "park_name": "Glen Park",
-            "name": "Evening Strength Training",
-            "description": "Post-work strength training session using the park's outdoor fitness equipment. All fitness levels welcome.",
-            "host": "Glen Park Fitness",
-            "weekday": 2,  # Wednesday
-            "event_time": time(18, 0),
-            "created_by_email": "testuser2@example.com",
-        },
-        {
-            "park_name": "Spring Creek Forest Preserve",
-            "name": "Morning Trail Run",
-            "description": "Weekly trail running group through the forest preserve. Multiple distance options available.",
-            "host": "Garland Trail Runners",
-            "weekday": 6,  # Sunday
-            "event_time": time(7, 0),
-            "created_by_email": "testuser1@example.com",
-        },
-        {
-            "park_name": "Spring Creek Forest Preserve",
-            "name": "Outdoor Fitness Bootcamp",
-            "description": "High-intensity workout using natural features and park equipment. All fitness levels welcome.",
-            "host": "Garland Fitness Bootcamp",
-            "weekday": 3,  # Thursday
-            "event_time": time(18, 30),
-            "created_by_email": "testuser2@example.com",
-        },
-        {
-            "park_name": "Audubon Park",
-            "name": "Community Walk & Talk",
-            "description": "Social walking group that meets every Tuesday. Great for fitness and meeting neighbors.",
-            "host": "Garland Community Walkers",
-            "weekday": 1,  # Tuesday
-            "event_time": time(19, 0),
-            "created_by_email": "testuser1@example.com",
-        },
-        {
-            "park_name": "Audubon Park",
-            "name": "Basketball Pickup Games",
-            "description": "Weekly pickup basketball games. All skill levels welcome. Bring your own ball if possible.",
-            "host": "Garland Basketball League",
-            "weekday": 5,  # Saturday
-            "event_time": time(9, 0),
-            "created_by_email": "testuser2@example.com",
-        },
-        {
-            "park_name": "Central Park",
-            "name": "Saturday Morning Yoga",
-            "description": "Free community yoga session in the park. Bring your own mat. All levels welcome.",
-            "host": "Garland Yoga Collective",
-            "weekday": 5,  # Saturday
-            "event_time": time(8, 30),
-            "created_by_email": "testuser1@example.com",
-        },
-        {
-            "park_name": "Central Park",
-            "name": "Evening Calisthenics",
-            "description": "Bodyweight training session focusing on pull-ups, push-ups, and core work using park equipment.",
-            "host": "Garland Calisthenics Club",
-            "weekday": 2,  # Wednesday
-            "event_time": time(18, 0),
-            "created_by_email": "testuser2@example.com",
-        },
-        {
-            "park_name": "Tuckerville Park",
-            "name": "Family Fitness Day",
-            "description": "Family-friendly fitness activities for all ages. Includes games, exercises, and fun challenges.",
-            "host": "Garland Family Fitness",
-            "weekday": 6,  # Sunday
-            "event_time": time(10, 0),
-            "created_by_email": "testuser1@example.com",
-        },
-        {
-            "park_name": "Tuckerville Park",
-            "name": "Tennis Social",
-            "description": "Casual tennis games and socializing. All skill levels welcome. Rackets available for loan.",
-            "host": "Garland Tennis Club",
-            "weekday": 4,  # Friday
-            "event_time": time(17, 30),
-            "created_by_email": "testuser2@example.com",
-        },
-        {
-            "park_name": "Waterview Park",
-            "name": "Lakeside Running Group",
-            "description": "Scenic running group around the lake. 2, 3, and 5 mile routes available. All paces welcome.",
-            "host": "Garland Running Club",
-            "weekday": 0,  # Monday
-            "event_time": time(6, 30),
-            "created_by_email": "testuser1@example.com",
-        },
-        {
-            "park_name": "Waterview Park",
-            "name": "Sunset Strength Training",
-            "description": "Evening strength training with beautiful lake views. Using park equipment and bodyweight exercises.",
-            "host": "Waterview Fitness",
-            "weekday": 4,  # Friday
             "event_time": time(19, 0),
             "created_by_email": "testuser2@example.com",
         },
