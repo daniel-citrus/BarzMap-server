@@ -27,11 +27,18 @@ A backend API for BarzMap, a web app where people can find and share outdoor gym
 - **Users**: User profiles and role management
 - **Images**: Handle park image metadata and approvals
 - **Reviews**: User reviews and ratings for parks
+- **Events**: Event feed with location-based filtering and distance calculations
+- **Park Submissions**: Submit new parks with images and equipment
 - **Admin**: Advanced management and approval workflows
 
 ### 2. Admin Workflows
 - **Approval System**: Admins review user-submitted parks before they go live
-- **Content Moderation**: Review reported images or comments
+  - Approve, deny, or set parks back to pending status
+  - Add moderation comments
+  - View paginated submission list with filtering
+- **Content Moderation**: Review and manage images
+  - Update image approval status and flags
+  - Delete inappropriate images
 
 ## Start Up Checklist
 
@@ -63,6 +70,8 @@ A backend API for BarzMap, a web app where people can find and share outdoor gym
   - [X] Equipment & Park-Equipment endpoints
   - [X] User management endpoints
   - [X] Reviews & Images endpoints
+  - [X] Events endpoints with location-based queries
+  - [X] Park submission endpoints (submit, view, list with pagination)
 - [ ] Implement user authentication security
   - [ ] Auth0 JWT token validation middleware
   - [ ] Protected route decorators (Dependencies)
@@ -78,21 +87,39 @@ A backend API for BarzMap, a web app where people can find and share outdoor gym
 ### Phase 1: Core API
 - [X] Design and create database schema
   - [X] Parks, Equipment, Users, Images, Reviews tables
+  - [X] Events table
 - [X] Implement core CRUD operations
+- [X] Park submission workflow
+  - [X] Submit parks with images and equipment
+  - [X] View submission details
+  - [X] List submissions with pagination and filtering
+- [X] Events feature
+  - [X] Event feed with location-based filtering
+  - [X] Distance calculations using haversine formula
 - [X] API Documentation (Swagger/OpenAPI auto-generated)
 
 ### Phase 2: Admin & Moderation
+- [X] Park approval workflow endpoints
+  - [X] Approve park submissions
+  - [X] Deny/reject park submissions
+  - [X] Set parks back to pending status
+  - [X] Add moderation comments
+  - [X] "Pending" vs "Approved" vs "Rejected" status logic
+- [X] Image moderation endpoints
+  - [X] Update image approval status and flags
+  - [X] Delete images
+- [X] Admin CRUD endpoints for all resources
+  - [X] Parks, Equipment, Images, Reviews, Park-Equipment, Events, Users
 - [ ] Implement role-based access control (RBAC)
-  - [ ] Admin-only endpoints
-  - [ ] Moderator permissions
-- [ ] Park approval workflow endpoints
-  - [ ] "Pending" vs "Approved" status logic
-- [ ] Image moderation endpoints
+  - [ ] Auth0 JWT token validation middleware
+  - [ ] Admin-only endpoint protection
+  - [ ] Moderator permissions enforcement
 
 ### Phase 3: Advanced Features
-- [ ] Geospatial queries (PostGIS or simple bounding box)
+- [X] Geospatial queries (PostGIS or simple bounding box)
   - [X] Simple lat/long bounding box implemented
-  - [ ] Advanced distance/radius search
+  - [X] Distance/radius search for events
+  - [ ] Advanced distance/radius search for parks
 - [ ] AI Integration
   - [ ] Park equipment detection from images (Zero-shot / YOLO)
 
