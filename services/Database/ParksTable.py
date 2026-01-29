@@ -163,9 +163,6 @@ def get_park_submissions_paginated(
 ) -> Tuple[List[Park], int]:
     """
     Get park submissions with pagination, status filtering, and search.
-    
-    Returns:
-        Tuple of (list of parks, total count)
     """
     query = db.query(Park)
     
@@ -204,16 +201,6 @@ def moderate_park(
 ) -> Optional[Park]:
     """
     Moderate a park (approve, deny, or set to pending).
-    
-    Args:
-        db: Database session
-        park_id: Park ID to moderate
-        status: New status ('approved', 'rejected', 'pending')
-        approved_by: User ID of the moderator (optional)
-        admin_notes: Moderation comment/notes (optional)
-    
-    Returns:
-        Updated Park object or None if not found
     """
     park = get_park(db, park_id)
     if not park:

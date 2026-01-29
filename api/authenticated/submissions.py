@@ -26,13 +26,6 @@ from models.responses.AdminResponses import (
 router = APIRouter()
 
 
-def format_park_id(park_id: UUID) -> str:
-    """Format park UUID as submission ID like 'SUB-10342'."""
-    # Use first 8 characters of UUID (without dashes) for readable ID
-    uuid_str = str(park_id).replace('-', '').upper()
-    return f"SUB-{uuid_str[:8]}"
-
-
 class ParkSubmissionResponse(BaseModel):
     """Response model for park submission."""
     message: str
@@ -86,7 +79,7 @@ def get_park_submissions(
             submitter_name = park.submitter.name
         
         submission_items.append(ParkSubmissionItem(
-            id=format_park_id(park.id),
+            id=str(park.id),
             title=park.name,
             description=park.description,
             address=park.address,
@@ -112,9 +105,9 @@ def get_park_submissions(
     )
 
 
-@router.get("/park-submissions/{submission_id}", response_model=ParkSubmissionDetail, tags=["Submissions"])
+@router.get("/park-submissions/{park_id}", response_model=ParkSubmissionDetail, tags=["Submissions"])
 def get_park_submission_detail(
-    submission_id: str,
+    park_id: UUID,
     db: Session = Depends(get_db)
 ):
     """
@@ -122,28 +115,7 @@ def get_park_submission_detail(
     
     Matches FEDC specification for ParkSubmissionViewer.jsx component.
     """
-    # Try to parse submission ID - for now, we'll search by matching pattern
-    # In production, you might want a mapping table
-    # For simplicity, we'll try to find by UUID if it's a valid UUID
-    park = None
-    
-    # Try parsing as UUID first (in case frontend sends UUID directly)
-    try:
-        park_uuid = UUID(submission_id)
-        park = get_park(db, park_uuid)
-    except ValueError:
-        # Not a valid UUID, try to find by matching ID pattern
-        # This is a simplified approach - in production use a mapping
-        if submission_id.startswith('SUB-'):
-            # For now, we'll need to search all parks and match
-            # This is inefficient but works for MVP
-            from services.Database import get_all_parks
-            all_parks = get_all_parks(db, skip=0, limit=10000)  # Large limit for search
-            for p in all_parks:
-                if format_park_id(p.id) == submission_id:
-                    park = p
-                    break
-    
+    park = get_park(db, park_id)
     if not park:
         raise HTTPException(status_code=404, detail="Park submission not found")
     
@@ -161,7 +133,7 @@ def get_park_submission_detail(
         submitter_name = park.submitter.name
     
     return ParkSubmissionDetail(
-        id=format_park_id(park.id),
+        id=str(park.id),
         title=park.name,
         parkName=park.name,
         description=park.description,

@@ -139,21 +139,42 @@ def seed_parks(db: Session, users: dict[str, User]) -> list[Park]:
 
 def seed_park_equipment(db: Session, parks: list[Park]):
     """Associate equipment with parks."""
-    # Get all equipment
+    # Get all equipment by name for reliable lookup
+    equipment_map = {}
     all_equipment = db.query(Equipment).all()
     if not all_equipment:
         print("No equipment found. Make sure migrations have run.")
         return
     
-    # Associate equipment with parks
+    for eq in all_equipment:
+        equipment_map[eq.name] = eq
+    
+    # Define equipment associations by park name and equipment name
+    # This is more reliable than using indices
     associations = [
-        (parks[0], [all_equipment[0], all_equipment[1], all_equipment[2]]),  # Golden Gate Park
-        (parks[1], [all_equipment[2], all_equipment[3], all_equipment[4]]),  # Dolores Park
-        (parks[2], [all_equipment[0], all_equipment[5]]),  # Marina Green
+        # Barras Paralelas - Calisthenics park, should have parallel bars, pull-up bars, etc.
+        (parks[0].name, ["Parallel Bars", "Pull-up Bar", "Push-up Bars", "Gymnastics Rings"]),
+        # Marina Park - Community park with outdoor fitness equipment
+        (parks[1].name, ["Pull-up Bar", "Ab Station", "Monkey Bars", "Running Track"]),
+        # Southgate Park - Blue turf workout station with calisthenics equipment
+        (parks[2].name, ["Parallel Bars", "Pull-up Bar", "Push-up Bars"]),
     ]
     
-    for park, equipment_list in associations:
-        for equipment in equipment_list:
+    # Create a lookup map for parks
+    park_map = {park.name: park for park in parks}
+    
+    for park_name, equipment_names in associations:
+        park = park_map.get(park_name)
+        if not park:
+            print(f"Warning: Park '{park_name}' not found, skipping equipment associations")
+            continue
+        
+        for equipment_name in equipment_names:
+            equipment = equipment_map.get(equipment_name)
+            if not equipment:
+                print(f"Warning: Equipment '{equipment_name}' not found, skipping")
+                continue
+            
             # Check if association already exists
             existing = db.query(ParkEquipment).filter(
                 ParkEquipment.park_id == park.id,

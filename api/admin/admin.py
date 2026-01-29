@@ -8,6 +8,7 @@ from uuid import UUID
 from datetime import datetime
 from services.Database import (
     get_db,
+    get_park,
     moderate_park,
     delete_park,
 )
@@ -18,21 +19,14 @@ from models.responses.AdminResponses import ParkSubmissionDetail
 router = APIRouter()
 
 
-def format_park_id(park_id: UUID) -> str:
-    """Format park UUID as submission ID like 'SUB-10342'."""
-    # Use first 8 characters of UUID (without dashes) for readable ID
-    uuid_str = str(park_id).replace('-', '').upper()
-    return f"SUB-{uuid_str[:8]}"
-
-
-@router.post("/park-submissions/{submission_id}/approve", response_model=ParkSubmissionDetail, tags=["Admin"])
+@router.post("/park-submissions/{park_id}/approve", response_model=ParkSubmissionDetail, tags=["Admin"])
 def approve_park_submission(
-    submission_id: str,
+    park_id: UUID,
     comment: ModerationComment = ModerationComment(),
     db: Session = Depends(get_db)
 ):
     """Approve a park submission."""
-    park = _get_park_by_submission_id(db, submission_id)
+    park = get_park(db, park_id)
     if not park:
         raise HTTPException(status_code=404, detail="Park submission not found")
     
@@ -51,14 +45,14 @@ def approve_park_submission(
     return _park_to_detail_response(db, moderated_park)
 
 
-@router.post("/park-submissions/{submission_id}/deny", response_model=ParkSubmissionDetail, tags=["Admin"])
+@router.post("/park-submissions/{park_id}/deny", response_model=ParkSubmissionDetail, tags=["Admin"])
 def deny_park_submission(
-    submission_id: str,
+    park_id: UUID,
     comment: ModerationComment = ModerationComment(),
     db: Session = Depends(get_db)
 ):
     """Deny a park submission."""
-    park = _get_park_by_submission_id(db, submission_id)
+    park = get_park(db, park_id)
     if not park:
         raise HTTPException(status_code=404, detail="Park submission not found")
     
@@ -77,14 +71,14 @@ def deny_park_submission(
     return _park_to_detail_response(db, moderated_park)
 
 
-@router.post("/park-submissions/{submission_id}/pending", response_model=ParkSubmissionDetail, tags=["Admin"])
+@router.post("/park-submissions/{park_id}/pending", response_model=ParkSubmissionDetail, tags=["Admin"])
 def set_park_submission_pending(
-    submission_id: str,
+    park_id: UUID,
     comment: ModerationComment = ModerationComment(),
     db: Session = Depends(get_db)
 ):
     """Set a park submission back to pending status."""
-    park = _get_park_by_submission_id(db, submission_id)
+    park = get_park(db, park_id)
     if not park:
         raise HTTPException(status_code=404, detail="Park submission not found")
     
@@ -103,13 +97,13 @@ def set_park_submission_pending(
     return _park_to_detail_response(db, moderated_park)
 
 
-@router.delete("/park-submissions/{submission_id}", status_code=204, tags=["Admin"])
+@router.delete("/park-submissions/{park_id}", status_code=204, tags=["Admin"])
 def delete_park_submission(
-    submission_id: str,
+    park_id: UUID,
     db: Session = Depends(get_db)
 ):
     """Delete a park submission."""
-    park = _get_park_by_submission_id(db, submission_id)
+    park = get_park(db, park_id)
     if not park:
         raise HTTPException(status_code=404, detail="Park submission not found")
     
@@ -117,23 +111,6 @@ def delete_park_submission(
     if not success:
         raise HTTPException(status_code=404, detail="Park submission not found")
     
-    return None
-
-
-def _get_park_by_submission_id(db: Session, submission_id: str) -> Optional[Park]:
-    """Helper to get park by submission ID (handles both UUID and SUB- format)."""
-    from services.Database import get_park, get_all_parks
-    # Try parsing as UUID first
-    try:
-        park_uuid = UUID(submission_id)
-        return get_park(db, park_uuid)
-    except ValueError:
-        # Not a valid UUID, search by matching ID pattern
-        if submission_id.startswith('SUB-'):
-            all_parks = get_all_parks(db, skip=0, limit=10000)
-            for p in all_parks:
-                if format_park_id(p.id) == submission_id:
-                    return p
     return None
 
 
@@ -155,7 +132,7 @@ def _park_to_detail_response(db: Session, park: Park) -> ParkSubmissionDetail:
         submitter_name = park.submitter.name
     
     return ParkSubmissionDetail(
-        id=format_park_id(park.id),
+        id=str(park.id),
         title=park.name,
         parkName=park.name,
         description=park.description,
