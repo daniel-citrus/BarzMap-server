@@ -160,11 +160,7 @@ async def submit_park(
             "description": "A small outdoor gym located next to the Washington Park lower baseball field.",
             "latitude": 40.785091,
             "longitude": -73.968285,
-            "address": "Central Park, Upper East Side",
-            "city": "Alameda",
-            "state": "CA",
-            "country": "USA",
-            "postal_code": "94501",
+            "address": "Central Park, Upper East Side, Alameda, CA, USA, 94501",
             "submitted_by": None,
             "images": [
                 {

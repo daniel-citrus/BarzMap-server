@@ -26,10 +26,6 @@ class Park(Base):
     latitude = Column(Numeric(10, 8), nullable=False)
     longitude = Column(Numeric(11, 8), nullable=False)
     address = Column(Text, nullable=True)
-    city = Column(String(255), nullable=True)
-    state = Column(String(100), nullable=True)
-    country = Column(String(100), nullable=True)
-    postal_code = Column(String(20), nullable=True)
     status = Column(
         String(50),
         default="pending",

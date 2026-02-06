@@ -95,15 +95,8 @@ def get_events_endpoint(
         # For now, we'll use a simple format. In production, you might want a custom ID generator
         event_id = f"EVT-{str(event.id).replace('-', '').upper()[:8]}"
         
-        # Format address - use park address or construct from city/state
-        address = event.park.address
-        if not address:
-            address_parts = []
-            if event.park.city:
-                address_parts.append(event.park.city)
-            if event.park.state:
-                address_parts.append(event.park.state)
-            address = ", ".join(address_parts) if address_parts else "Address not available"
+        # Format address - use park address
+        address = event.park.address or "Address not available"
         
         event_responses.append(EventResponse(
             id=event_id,

@@ -17,10 +17,6 @@ def create_park(
     longitude: Decimal,
     description: Optional[str] = None,
     address: Optional[str] = None,
-    city: Optional[str] = None,
-    state: Optional[str] = None,
-    country: Optional[str] = None,
-    postal_code: Optional[str] = None,
     submitted_by: Optional[UUID] = None,
     status: str = "pending",
 ) -> Park:
@@ -31,10 +27,6 @@ def create_park(
         latitude=latitude,
         longitude=longitude,
         address=address,
-        city=city,
-        state=state,
-        country=country,
-        postal_code=postal_code,
         submitted_by=submitted_by,
         status=status,
     )
@@ -97,10 +89,6 @@ def update_park(
     latitude: Optional[Decimal] = None,
     longitude: Optional[Decimal] = None,
     address: Optional[str] = None,
-    city: Optional[str] = None,
-    state: Optional[str] = None,
-    country: Optional[str] = None,
-    postal_code: Optional[str] = None,
     status: Optional[str] = None,
     approved_by: Optional[UUID] = None,
     approved_at: Optional[datetime] = None,
@@ -121,14 +109,6 @@ def update_park(
         park.longitude = longitude
     if address is not None:
         park.address = address
-    if city is not None:
-        park.city = city
-    if state is not None:
-        park.state = state
-    if country is not None:
-        park.country = country
-    if postal_code is not None:
-        park.postal_code = postal_code
     if status is not None:
         park.status = status
     if approved_by is not None:

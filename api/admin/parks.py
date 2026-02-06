@@ -8,36 +8,13 @@ from uuid import UUID
 from decimal import Decimal
 from services.Database import (
     get_db,
-    create_park,
     update_park,
     delete_park,
 )
-from models.requests.parks import ParkCreate, ParkUpdate
+from models.requests.parks import ParkUpdate
 from models.responses.ParksResponses import ParkResponse
 
 router = APIRouter()
-
-
-@router.post("/", response_model=ParkResponse, tags=["Parks"])
-def create_new_park(
-    park_data: ParkCreate,
-    db: Session = Depends(get_db)
-):
-    """Create a new park."""
-    return create_park(
-        db=db,
-        name=park_data.name,
-        latitude=Decimal(str(park_data.latitude)),
-        longitude=Decimal(str(park_data.longitude)),
-        description=park_data.description,
-        address=park_data.address,
-        city=park_data.city,
-        state=park_data.state,
-        country=park_data.country,
-        postal_code=park_data.postal_code,
-        submitted_by=park_data.submitted_by,
-        status=park_data.status or "pending",
-    )
 
 
 @router.put("/{park_id}", response_model=ParkResponse, tags=["Parks"])
@@ -55,10 +32,6 @@ def update_park_by_id(
         latitude=Decimal(str(park_data.latitude)) if park_data.latitude else None,
         longitude=Decimal(str(park_data.longitude)) if park_data.longitude else None,
         address=park_data.address,
-        city=park_data.city,
-        state=park_data.state,
-        country=park_data.country,
-        postal_code=park_data.postal_code,
         status=park_data.status,
         approved_by=park_data.approved_by,
         approved_at=park_data.approved_at,

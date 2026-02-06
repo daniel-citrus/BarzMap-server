@@ -9,11 +9,7 @@ class ParkCreate(BaseModel):
     description: Optional[str] = None
     latitude: float
     longitude: float
-    address: str
-    city: str
-    state: str
-    country: str
-    postal_code: str
+    address: Optional[str] = None
     submitted_by: Optional[UUID] = None
     status: Optional[str] = "pending"  # pending, approved, rejected
 
@@ -24,11 +20,7 @@ class ParkUpdate(BaseModel):
     description: Optional[str] = None
     latitude: float
     longitude: float
-    address: str
-    city: str
-    state: str
-    country: str
-    postal_code: str
+    address: Optional[str] = None
     submitted_by: Optional[UUID] = None
     approved_by: Optional[UUID] = None
     approved_at: Optional[datetime] = None

@@ -16,11 +16,7 @@ class ParkSubmissionRequest(BaseModel):
     description: Optional[str] = Field(None, max_length=2000, description="Park description")
     latitude: float = Field(..., ge=-90, le=90, description="Latitude coordinate")
     longitude: float = Field(..., ge=-180, le=180, description="Longitude coordinate")
-    address: str = Field(..., min_length=1, description="Street address")
-    city: str = Field(..., min_length=1, max_length=255, description="City name")
-    state: str = Field(..., min_length=1, max_length=100, description="State or province")
-    country: str = Field(..., min_length=1, max_length=100, description="Country name")
-    postal_code: str = Field(..., min_length=1, max_length=20, description="Postal/ZIP code")
+    address: Optional[str] = Field(None, description="Full address display string")
     
     # Submission metadata
     submitted_by: Optional[UUID] = Field(None, description="User ID submitting the park")
@@ -46,7 +42,7 @@ class ParkSubmissionRequest(BaseModel):
             raise ValueError('Maximum of 5 images allowed per park submission')
         return v
     
-    @field_validator('name', 'city', 'state', 'country')
+    @field_validator('name', 'address')
     @classmethod
     def validate_string_fields(cls, v):
         """Strip whitespace from string fields."""

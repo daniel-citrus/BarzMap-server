@@ -6,6 +6,7 @@ from sqlalchemy.orm import Session
 from typing import List, Optional
 from decimal import Decimal
 from uuid import UUID
+from models.requests.parks import ParkCreate
 from models.responses.ParksResponses import ParkResponse
 from services.Database import (
     get_db,
@@ -13,6 +14,7 @@ from services.Database import (
     get_parks_by_location,
     get_park,
     get_parks_by_status,
+    create_park,
 )
 
 router = APIRouter()
@@ -68,4 +70,22 @@ def get_park_by_id(
     if not park:
         raise HTTPException(status_code=404, detail="Park not found")
     return park
+
+
+@router.post("/", response_model=ParkResponse, tags=["Parks"])
+def create_new_park(
+    park_data: ParkCreate,
+    db: Session = Depends(get_db)
+):
+    """Create a new park."""
+    return create_park(
+        db=db,
+        name=park_data.name,
+        latitude=Decimal(str(park_data.latitude)),
+        longitude=Decimal(str(park_data.longitude)),
+        description=park_data.description,
+        address=park_data.address,
+        submitted_by=park_data.submitted_by,
+        status=park_data.status or "pending",
+    )
 

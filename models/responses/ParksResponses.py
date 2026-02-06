@@ -15,10 +15,6 @@ class ParkResponse(BaseModel):
     latitude: float
     longitude: float
     address: Optional[str] = None
-    city: Optional[str] = None
-    state: Optional[str] = None
-    country: Optional[str] = None
-    postal_code: Optional[str] = None
     status: str
     submitted_by: Optional[UUID] = None
     submit_date: datetime

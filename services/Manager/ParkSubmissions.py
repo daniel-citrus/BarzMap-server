@@ -69,10 +69,6 @@ async def process_submission(submission: ParkSubmissionRequest, db: Session) -> 
             longitude=Decimal(str(submission.longitude)),
             description=submission.description,
             address=submission.address,
-            city=submission.city,
-            state=submission.state,
-            country=submission.country,
-            postal_code=submission.postal_code,
             submitted_by=submission.submitted_by,
             status="pending",
         )
