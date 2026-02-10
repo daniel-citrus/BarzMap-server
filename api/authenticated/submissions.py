@@ -1,17 +1,14 @@
 """
 Authenticated park submission endpoints - require user authentication.
 """
-from fastapi import APIRouter, Depends, Body, HTTPException, Query, File, Form
+from fastapi import APIRouter, Depends, HTTPException, Query, File, Form, Request
 from fastapi.datastructures import UploadFile
 from sqlalchemy.orm import Session
 from pydantic import BaseModel
 from typing import Optional, List
 from uuid import UUID
 import math
-import json
-import base64
-from models.requests.ParkSubmissionRequest import ParkSubmissionRequest, ImageSubmission
-from services.Manager.ParkSubmissions import process_submission
+from services.Manager.ParkSubmissions import process_submission, parse_submission_form_data
 from services.Database import (
     get_db,
     get_park,
@@ -156,6 +153,7 @@ def get_park_submission_detail(
 
 @router.post("/", response_model=ParkSubmissionResponse, tags=["Submissions"])
 async def submit_park(
+    request: Request,
     name: str = Form(..., description="Name of the park"),
     description: Optional[str] = Form(None, description="Park description"),
     latitude: float = Form(..., description="Latitude coordinate"),
@@ -163,7 +161,7 @@ async def submit_park(
     address: Optional[str] = Form(None, description="Full address display string"),
     submitted_by: Optional[str] = Form(None, description="User ID submitting the park (UUID as string)"),
     equipment_ids: Optional[str] = Form(None, description="JSON array of equipment IDs: [\"uuid1\", \"uuid2\"]"),
-    images: List[UploadFile] = File(default=[], description="Image files to upload (max 5)"),
+    images: List[UploadFile] = File(default=[], description="Image files to upload (max 5). Note: Swagger UI has limitations with multiple file uploads - use Postman or curl for testing."),
     image_alt_texts: Optional[str] = Form(None, description="JSON array of alt texts for images: [\"alt1\", \"alt2\"]"),
     db: Session = Depends(get_db)
 ) -> ParkSubmissionResponse:
@@ -177,71 +175,35 @@ async def submit_park(
     equipment_ids should be a JSON string array: ["uuid1", "uuid2"]
     image_alt_texts should be a JSON string array: ["alt1", "alt2"] (optional, matches image order)
     """
-    # Validate image count
-    if len(images) > 5:
-        raise HTTPException(status_code=400, detail="Maximum of 5 images allowed per park submission")
+    # Debug: Inspect the raw request to see what's being sent
+    import logging
+    logger = logging.getLogger(__name__)
     
-    # Parse equipment_ids if provided
-    equipment_ids_list = None
-    if equipment_ids:
-        try:
-            equipment_ids_list = json.loads(equipment_ids)
-            if not isinstance(equipment_ids_list, list):
-                raise ValueError("equipment_ids must be a JSON array")
-            # Convert to UUIDs
-            equipment_ids_list = [UUID(eid) for eid in equipment_ids_list]
-        except (json.JSONDecodeError, ValueError) as e:
-            raise HTTPException(status_code=400, detail=f"Invalid equipment_ids format: {str(e)}")
+    # Log request details to help debug frontend issues
+    logger.info(f"Request content-type: {request.headers.get('content-type', 'unknown')}")
+    form_data = await request.form()
+    logger.info(f"Form fields received: {list(form_data.keys())}")
+    if 'images' in form_data:
+        images_data = form_data.getlist('images')
+        logger.info(f"Images field found: {len(images_data)} items, types: {[type(x).__name__ for x in images_data]}")
+    else:
+        logger.warning("No 'images' field found in form data. Available fields: " + ", ".join(form_data.keys()))
     
-    # Parse submitted_by if provided
-    submitted_by_uuid = None
-    if submitted_by:
-        try:
-            submitted_by_uuid = UUID(submitted_by)
-        except ValueError:
-            raise HTTPException(status_code=400, detail="Invalid submitted_by UUID format")
-    
-    # Parse image alt texts if provided
-    alt_texts_list = []
-    if image_alt_texts:
-        try:
-            alt_texts_list = json.loads(image_alt_texts)
-            if not isinstance(alt_texts_list, list):
-                raise ValueError("image_alt_texts must be a JSON array")
-        except (json.JSONDecodeError, ValueError) as e:
-            raise HTTPException(status_code=400, detail=f"Invalid image_alt_texts format: {str(e)}")
-    
-    # Process images - read file data and create ImageSubmission objects
-    image_submissions = []
-    for idx, image_file in enumerate(images):
-        # Read file content as bytes
-        file_content = await image_file.read()
-        
-        # Convert bytes to base64 string for the ImageSubmission model
-        file_data_base64 = base64.b64encode(file_content).decode('utf-8')
-        
-        # Get alt text for this image (if provided)
-        alt_text = alt_texts_list[idx] if idx < len(alt_texts_list) else None
-        
-        image_submissions.append(ImageSubmission(
-            file_data=file_data_base64,
-            alt_text=alt_text
-        ))
-    
-    # Create ParkSubmissionRequest from form data
-    submission = ParkSubmissionRequest(
-        name=name.strip() if name else name,
+    # Parse form data into ParkSubmissionRequest
+    submission = await parse_submission_form_data(
+        name=name,
         description=description,
         latitude=latitude,
         longitude=longitude,
-        address=address.strip() if address else address,
-        submitted_by=submitted_by_uuid,
-        equipment_ids=equipment_ids_list,
-        images=image_submissions if image_submissions else None
+        address=address,
+        submitted_by=submitted_by,
+        equipment_ids=equipment_ids,
+        images=images if images else [],
+        image_alt_texts=image_alt_texts,
     )
     
     # Process the submission
-    submittedData = await process_submission(submission, db)
+    await process_submission(submission, db)
      
     return ParkSubmissionResponse(
         message="Park submission processed successfully",

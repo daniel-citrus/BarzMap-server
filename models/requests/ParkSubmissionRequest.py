@@ -5,7 +5,7 @@ from uuid import UUID
 
 class ImageSubmission(BaseModel):
     """Image data for park submission."""
-    file_data: str = Field(..., description="Image binary data")
+    file_data: bytes = Field(..., description="Image binary data")
     alt_text: Optional[str] = Field(None, max_length=255, description="Alt text for accessibility")
 
 class ParkSubmissionRequest(BaseModel):

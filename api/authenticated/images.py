@@ -1,7 +1,8 @@
 """
 Authenticated image endpoints - require user authentication.
 """
-from fastapi import APIRouter, Depends, HTTPException, Query
+from fastapi import APIRouter, Depends, HTTPException, Query, File
+from fastapi.datastructures import UploadFile
 from sqlalchemy.orm import Session
 from typing import List, Optional
 from uuid import UUID
@@ -13,7 +14,9 @@ from services.Database import (
     get_primary_image,
 )
 from models.requests.images import ImageCreate
+from models.requests.ParkSubmissionRequest import ImageSubmission
 from models.responses.ImagesResponses import ImageResponse
+from services.Adapters.CloudflareAdapter import upload_single_image, SingleImageUploadResult
 
 router = APIRouter()
 
@@ -75,4 +78,30 @@ def get_primary_image_for_park(
     if not image:
         raise HTTPException(status_code=404, detail="Primary image not found")
     return image
+
+
+@router.post("/test-submit", response_model=SingleImageUploadResult, tags=["Images"])
+async def test_submit_image(
+    image: UploadFile = File(..., description="Image file to upload to Cloudflare"),
+    alt_text: Optional[str] = None,
+) -> SingleImageUploadResult:
+    """
+    Test endpoint to upload a single image directly to Cloudflare.
+    
+    This endpoint is for testing the Cloudflare image upload functionality.
+    It accepts a single image file and uploads it to Cloudflare Images API.
+    """
+    # Read file content as bytes
+    file_content = await image.read()
+    
+    # Create ImageSubmission object
+    image_submission = ImageSubmission(
+        file_data=file_content,
+        alt_text=alt_text
+    )
+    
+    # Upload to Cloudflare using the adapter
+    result = await upload_single_image(index=0, image=image_submission)
+    
+    return result
 
