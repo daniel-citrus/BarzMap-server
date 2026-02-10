@@ -5,8 +5,7 @@ from uuid import UUID
 
 class ImageSubmission(BaseModel):
     """Image data for park submission."""
-    file_data: str = Field(..., description="Base64 encoded image data")
-    url: Optional[str] = Field(..., description="Image URL")
+    file_data: str = Field(..., description="Image binary data")
     alt_text: Optional[str] = Field(None, max_length=255, description="Alt text for accessibility")
 
 class ParkSubmissionRequest(BaseModel):
@@ -14,8 +13,8 @@ class ParkSubmissionRequest(BaseModel):
     # Park information
     name: str = Field(..., min_length=1, max_length=255, description="Name of the park")
     description: Optional[str] = Field(None, max_length=2000, description="Park description")
-    latitude: float = Field(..., ge=-90, le=90, description="Latitude coordinate")
-    longitude: float = Field(..., ge=-180, le=180, description="Longitude coordinate")
+    latitude: float = Field(..., ge=-90.0, le=90.0, description="Latitude coordinate")
+    longitude: float = Field(..., ge=-180.0, le=180.0, description="Longitude coordinate")
     address: Optional[str] = Field(None, description="Full address display string")
     
     # Submission metadata

@@ -29,13 +29,11 @@ sample_park_submission = ParkSubmissionRequest(
     submitted_by=None,
     images=[
         ImageSubmission(
-            file_data="",  # Placeholder - would be base64 encoded image data
-            url="https://i.pinimg.com/736x/ff/35/01/ff3501402d2b46257e8d104508323a53.jpg",
+            file_data="",  # Placeholder - would be image binary data
             alt_text="Outdoor gym equipment at Central Park"
         ),
         ImageSubmission(
             file_data="",
-            url="https://c4.wallpaperflare.com/wallpaper/635/923/784/anime-my-hero-academia-all-might-hd-wallpaper-preview.jpg",
             alt_text="Park overview"
         )
     ],

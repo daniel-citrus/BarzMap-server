@@ -76,8 +76,7 @@ async def upload_single_image(index: int, image: ImageSubmission) -> SingleImage
     try:
         uploaded = await client.images.v1.create(
             account_id=account_id,
-            # file=image.file_data,  # Reserved for future file upload support
-            url=image.url,
+            file=image.file_data,
         )
 
         uploaded_dict = (

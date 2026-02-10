@@ -3,11 +3,12 @@ API routes for Equipment.
 """
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
-from typing import List
+
 from uuid import UUID
 from services.Database import (
     get_db,
     create_equipment,
+    get_equipment_by_name,
     update_equipment,
     delete_equipment,
 )
