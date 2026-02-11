@@ -1,5 +1,5 @@
 """
-API routes for Admin park submission moderation.
+Admin park submission moderation endpoints.
 RESTful: moderation is a PATCH on the submission resource with status in the body.
 """
 from fastapi import APIRouter, Depends, HTTPException
@@ -55,31 +55,28 @@ def delete_park_submission(
     park = get_park(db, park_id)
     if not park:
         raise HTTPException(status_code=404, detail="Park submission not found")
-    
+
     success = delete_park(db, park.id)
     if not success:
         raise HTTPException(status_code=404, detail="Park submission not found")
-    
+
     return None
 
 
 def _park_to_detail_response(db: Session, park: Park) -> ParkSubmissionDetail:
     """Helper to convert Park to ParkSubmissionDetail response."""
     from services.Database import get_equipment_by_park, get_images_by_park
-    
-    # Get equipment names
+
     equipment_list = get_equipment_by_park(db, park.id)
     equipment_names = [eq.name for eq in equipment_list]
-    
-    # Get image URLs
+
     images_list = get_images_by_park(db, park.id)
     image_urls = [img.image_url for img in images_list if img.image_url]
-    
-    # Get submitter name
+
     submitter_name = None
     if park.submitter:
         submitter_name = park.submitter.name
-    
+
     return ParkSubmissionDetail(
         id=str(park.id),
         title=park.name,

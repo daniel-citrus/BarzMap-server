@@ -1,5 +1,5 @@
 """
-Authenticated event endpoints - require user authentication.
+Event endpoint used by the frontend: events feed.
 """
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
@@ -31,20 +31,14 @@ def get_events_endpoint(
     fromDate: Optional[str] = Query(None, description="ISO-8601 timestamp; omit events before this date"),
     db: Session = Depends(get_db)
 ):
-    """
-    Get events feed with optional location-based filtering.
-    
-    Matches FEDC specification for EventsBoard.jsx component.
-    """
-    # Validate lat/lng/radius combination
+    """Get events feed with optional location-based filtering."""
     if (lat is not None or lng is not None or radius is not None):
         if lat is None or lng is None or radius is None:
             raise HTTPException(
                 status_code=400,
                 detail="lat, lng, and radius must all be provided together if any are provided"
             )
-    
-    # Parse fromDate if provided
+
     from_date = None
     if fromDate:
         try:
@@ -54,8 +48,7 @@ def get_events_endpoint(
                 status_code=400,
                 detail="Invalid fromDate format. Expected ISO-8601 timestamp."
             )
-    
-    # Get events from database
+
     events = get_events(
         db=db,
         lat=lat,
@@ -64,14 +57,12 @@ def get_events_endpoint(
         limit=limit,
         from_date=from_date,
     )
-    
-    # Convert to response format
+
     event_responses = []
     for event in events:
         if not event.park:
-            continue  # Skip events without a park
-        
-        # Calculate distance if lat/lng provided
+            continue
+
         distance_str = None
         if lat is not None and lng is not None:
             distance_miles = haversine_distance(
@@ -80,24 +71,18 @@ def get_events_endpoint(
                 float(event.park.longitude)
             )
             distance_str = format_distance(distance_miles)
-        
-        # Format date
+
         date_str = None
         if event.event_date:
             date_str = event.event_date.isoformat()
-        
-        # Format time
+
         time_str = None
         if event.event_time:
             time_str = event.event_time.strftime("%H:%M")
-        
-        # Format event ID as string (FEDC expects string IDs like "EVT-2401")
-        # For now, we'll use a simple format. In production, you might want a custom ID generator
+
         event_id = f"EVT-{str(event.id).replace('-', '').upper()[:8]}"
-        
-        # Format address - use park address
         address = event.park.address or "Address not available"
-        
+
         event_responses.append(EventResponse(
             id=event_id,
             parkName=event.park.name,
@@ -109,6 +94,5 @@ def get_events_endpoint(
             host=event.host,
             ctaLabel="View event"
         ))
-    
-    return EventsListResponse(data=event_responses)
 
+    return EventsListResponse(data=event_responses)

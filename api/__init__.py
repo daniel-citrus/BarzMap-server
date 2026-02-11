@@ -1,31 +1,20 @@
 """
-API routers for BarzMap.
-Organized by access level: authenticated and admin.
+API routers for BarzMap (trimmed to endpoints used by the frontend).
 """
-from .authenticated import parks_router, submissions_router
-from .admin import (
-    admin_router,
-    parks_router as admin_parks_router,
-    equipment_router,
-    images_router,
-    reviews_router,
-    park_equipment_router,
-    events_router,
-    users_router,
-)
+from .parks import router as parks_router
+from .equipment import router as equipment_router
+from .events import router as events_router
+from .images import router as images_router
+from .park_equipment import router as park_equipment_router
+from .submissions import router as submissions_router
+from .admin import router as admin_router
 
 __all__ = [
-    # Authenticated routers
     "parks_router",
-    "submissions_router",
-    # Admin routers
-    "admin_router",
-    "admin_parks_router",
     "equipment_router",
-    "images_router",
-    "reviews_router",
-    "park_equipment_router",
     "events_router",
-    "users_router",
+    "images_router",
+    "park_equipment_router",
+    "submissions_router",
+    "admin_router",
 ]
-
