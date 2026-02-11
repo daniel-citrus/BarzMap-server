@@ -17,7 +17,7 @@ The admin dashboard renders a paginated feed of park submissions, exposes modera
 
 | Query Param | Type | Notes |
 | --- | --- | --- |
-| `status` | `string` | Optional; one of `pending`, `approved`, `denied`, `all` (default `pending`). |
+| `status` | `string` | Optional; one of `pending`, `approved`, `rejected`, `all` (default `pending`). |
 | `search` | `string` | Optional fuzzy match on title, submitter, or address. |
 | `page` | `number` | Starts at `1`. If not provided, defaults to `1`. |
 | `pageSize` | `number` | Optional; defaults to `20` if not provided. Maximum allowed is `100`. |
@@ -78,26 +78,28 @@ Field handling:
 - `address` or `parkAddress` fills the address block (viewer uses `address ?? parkAddress`).
 - `submitter` or `user` is shown under the timestamp (viewer uses `submitter ?? user`).
 - `submittedAt` or `date` is used for the timestamp display (viewer uses `submittedAt ?? date`).
-- `status` should stay lowercase (`pending`, `approved`, `denied`) for badge logic.
+- `status` should stay lowercase (`pending`, `approved`, `rejected`) for badge logic.
 - `images` array controls the carousel. Empty array `[]` if no images. Image URLs served by CDN should return HTTP 404 for missing files to trigger the fallback UI.
 
 ### Moderation Actions
-All moderation routes return the updated submission object (same shape as the detail response) so the UI can refresh instantly.
+Moderation is a single RESTful update on the submission resource. The endpoint returns the updated submission object (same shape as the detail response) so the UI can refresh instantly.
 
-`POST /api/admin/park-submissions/{submissionId}/approve`
+`PATCH /api/admin/park-submissions/{submissionId}`
 
-`POST /api/admin/park-submissions/{submissionId}/deny`
-
-`POST /api/admin/park-submissions/{submissionId}/pending`
-
-Request body (optional comment field):
+Request body (status required; comment optional):
 ```json
 {
+  "status": "approved",
   "comment": "Looks great—double-check lighting schedule."
 }
 ```
 
-If no comment is provided, send empty string `""` or omit the field. Backend should trim whitespace.
+| Field | Type | Notes |
+| --- | --- | --- |
+| `status` | `string` | Required; one of `approved`, `rejected`, `pending`. |
+| `comment` | `string` | Optional; moderation note. Empty string or omit if none. Backend trims whitespace. |
+
+If no comment is provided, send empty string `""` or omit the field.
 
 `DELETE /api/admin/park-submissions/{submissionId}`
 
@@ -113,7 +115,7 @@ Response: `204 No Content` on success. If the submission is already deleted, ret
 ```
 pending -> awaiting review
 approved -> visible to end users
-denied -> rejected; remains in list for audit history
+rejected -> remains in list for audit history
 ```
 
 Invalid statuses must surface as `400` to keep UI messaging accurate.
@@ -236,9 +238,7 @@ Field requirements:
 - **Endpoints**:
   - `GET /api/admin/park-submissions` (with pagination, search, status filtering)
   - `GET /api/admin/park-submissions/{submissionId}`
-  - `POST /api/admin/park-submissions/{submissionId}/approve`
-  - `POST /api/admin/park-submissions/{submissionId}/deny`
-  - `POST /api/admin/park-submissions/{submissionId}/pending`
+  - `PATCH /api/admin/park-submissions/{submissionId}` (body: `{ "status": "approved" | "rejected" | "pending", "comment"?: string }`)
   - `DELETE /api/admin/park-submissions/{submissionId}`
 - **Required for**: `ParkSubmissionAdminDashboard.jsx` and `ParkSubmissionViewer.jsx` components
 

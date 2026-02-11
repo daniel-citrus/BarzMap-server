@@ -1,7 +1,8 @@
 """
 API routes for Admin park submission moderation.
+RESTful: moderation is a PATCH on the submission resource with status in the body.
 """
-from fastapi import APIRouter, Depends, HTTPException, Query
+from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from uuid import UUID
 from services.Database import (
@@ -10,88 +11,38 @@ from services.Database import (
     moderate_park,
     delete_park,
 )
-from models.requests.admin import ModerationComment
+from models.requests.admin import ModerateParkSubmissionRequest
 from models.database import Park
 from models.responses.AdminResponses import ParkSubmissionDetail
 
 router = APIRouter()
 
 
-@router.post("/park-submissions/{park_id}/approve", response_model=ParkSubmissionDetail, tags=["Admin"])
-def approve_park_submission(
+@router.patch("/park-submissions/{park_id}", response_model=ParkSubmissionDetail, tags=["Admin"])
+def moderate_park_submission(
     park_id: UUID,
-    comment: ModerationComment = ModerationComment(),
-    db: Session = Depends(get_db)
+    body: ModerateParkSubmissionRequest,
+    db: Session = Depends(get_db),
 ):
-    """Approve a park submission."""
+    """
+    Update park submission moderation status (approve, reject, or set pending).
+    RESTful: single endpoint; action is expressed in the request payload.
+    """
     park = get_park(db, park_id)
     if not park:
         raise HTTPException(status_code=404, detail="Park submission not found")
-    
-    # Moderate park
+
     moderated_park = moderate_park(
         db=db,
         park_id=park.id,
-        status='approved',
-        admin_notes=comment.comment or "",
+        status=body.status,
+        admin_notes=(body.comment or "").strip(),
     )
-    
     if not moderated_park:
-        raise HTTPException(status_code=400, detail="Failed to approve park submission")
-    
-    # Return updated submission detail
-    return _park_to_detail_response(db, moderated_park)
-
-
-@router.post("/park-submissions/{park_id}/deny", response_model=ParkSubmissionDetail, tags=["Admin"])
-def deny_park_submission(
-    park_id: UUID,
-    comment: ModerationComment = ModerationComment(),
-    db: Session = Depends(get_db)
-):
-    """Deny a park submission."""
-    park = get_park(db, park_id)
-    if not park:
-        raise HTTPException(status_code=404, detail="Park submission not found")
-    
-    # Moderate park (use 'rejected' status)
-    moderated_park = moderate_park(
-        db=db,
-        park_id=park.id,
-        status='rejected',
-        admin_notes=comment.comment or "",
-    )
-    
-    if not moderated_park:
-        raise HTTPException(status_code=400, detail="Failed to deny park submission")
-    
-    # Return updated submission detail
-    return _park_to_detail_response(db, moderated_park)
-
-
-@router.post("/park-submissions/{park_id}/pending", response_model=ParkSubmissionDetail, tags=["Admin"])
-def set_park_submission_pending(
-    park_id: UUID,
-    comment: ModerationComment = ModerationComment(),
-    db: Session = Depends(get_db)
-):
-    """Set a park submission back to pending status."""
-    park = get_park(db, park_id)
-    if not park:
-        raise HTTPException(status_code=404, detail="Park submission not found")
-    
-    # Moderate park
-    moderated_park = moderate_park(
-        db=db,
-        park_id=park.id,
-        status='pending',
-        admin_notes=comment.comment or "",
-    )
-    
-    if not moderated_park:
-        raise HTTPException(status_code=400, detail="Failed to set park submission to pending")
-    
-    # Return updated submission detail
+        raise HTTPException(
+            status_code=400,
+            detail="Invalid status or failed to moderate park submission",
+        )
     return _park_to_detail_response(db, moderated_park)
 
 

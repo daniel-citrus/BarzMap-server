@@ -34,7 +34,7 @@ class ParkSubmissionResponse(BaseModel):
 
 @router.get("/park-submissions", response_model=ParkSubmissionsListResponse, tags=["Submissions"])
 def get_park_submissions(
-    status: str = Query("pending", description="Status filter: pending, approved, denied, or all"),
+    status: str = Query("pending", description="Status filter: pending, approved, rejected, or all"),
     search: Optional[str] = Query(None, description="Fuzzy search on title, submitter, or address"),
     page: int = Query(1, ge=1, description="Page number (starts at 1)"),
     pageSize: int = Query(20, ge=1, le=100, description="Items per page"),
@@ -46,13 +46,9 @@ def get_park_submissions(
     Matches FEDC specification for ParkSubmissionAdminDashboard.jsx component.
     """
     # Validate status
-    if status not in ['pending', 'approved', 'denied', 'rejected', 'all']:
-        raise HTTPException(status_code=400, detail="Invalid status. Must be one of: pending, approved, denied, all")
-    
-    # Map 'denied' to 'rejected' for database
-    if status == 'denied':
-        status = 'rejected'
-    
+    if status not in ['pending', 'approved', 'rejected', 'all']:
+        raise HTTPException(status_code=400, detail="Invalid status. Must be one of: pending, approved, rejected, all")
+
     # Get parks with pagination
     parks, total_count = get_park_submissions_paginated(
         db=db,
