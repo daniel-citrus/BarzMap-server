@@ -4,7 +4,8 @@ from models.requests.ParkSubmissionRequest import ParkSubmissionRequest, ImageSu
 from models.responses.ParkSubmissionResponse import ParkSubmissionResponse, ValidationResult
 from sqlalchemy.orm import Session
 from services.Database import get_equipment
-from services.Adapters.CloudflareAdapter import UploadedImage, upload_images
+from models.responses.CloudflareImageResponses import UploadedImage
+from services.Adapters.CloudflareAdapter import upload_images
 from services.Database.ParksTable import create_park
 from services.Database.ParkEquipmentTable import add_equipment_to_park
 from services.Database.ImagesTable import create_image

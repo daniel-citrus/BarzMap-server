@@ -125,7 +125,7 @@ Invalid statuses must surface as `400` to keep UI messaging accurate.
 Provides a `getFeaturesWithinBounds` helper. When wired to the backend the hook should request GeoJSON features constrained by the map viewport.
 
 ### Bounding-Box Search
-`GET /api/parks`
+`GET /api/park`
 
 | Query Param | Type | Notes |
 | --- | --- | --- |
@@ -222,9 +222,9 @@ Field requirements:
 
 ### ✅ Implemented Endpoints
 
-#### 1. Parks (`GET /api/parks`)
+#### 1. Parks (`GET /api/park`)
 - **Status**: ✅ Implemented
-- **Endpoint**: `GET /api/parks` (with bounding box support via `/location` endpoint)
+- **Endpoint**: `GET /api/park` (with bounding box support via `/location` endpoint)
 - **Note**: The FEDC specifies `bbox` query param format, but current implementation uses separate `min_latitude`, `max_latitude`, `min_longitude`, `max_longitude` params. Consider adding a `bbox` parser for compatibility.
 
 #### 2. Events (`GET /api/events`)

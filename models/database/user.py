@@ -4,7 +4,7 @@ User ORM model.
 from sqlalchemy import Column, String, Boolean, DateTime, CheckConstraint
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.sql import func
-from services.Database.PostgresConnection import Base
+from core.db import Base
 import uuid
 
 

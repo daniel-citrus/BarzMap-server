@@ -139,7 +139,7 @@ The API provides the following endpoint groups:
 
 - **Authentication** (`/auth`) - User authentication endpoints
 - **Users** (`/api/users`) - User management
-- **Parks** (`/api/parks`) - Park CRUD operations and location-based queries
+- **Parks** (`/api/park`) - Park CRUD operations and location-based queries
 - **Equipment** (`/api/equipment`) - Equipment type management
 - **Park Equipment** (`/api/park-equipment`) - Link equipment to parks
 - **Images** (`/api/images`) - Image upload and management

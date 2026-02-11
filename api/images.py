@@ -5,8 +5,10 @@ from fastapi import APIRouter, Depends, Query
 from sqlalchemy.orm import Session
 from typing import List, Optional
 from uuid import UUID
-from services.Database import get_db, get_images_by_park
+
 from models.responses.ImagesResponses import ImageResponse
+from services.Database import get_db
+from services.Manager.Images import get_images_for_park as manager_get_images_for_park
 
 router = APIRouter()
 
@@ -19,9 +21,4 @@ def get_images_for_park(
     db: Session = Depends(get_db)
 ):
     """Get all images for a park with optional filtering."""
-    return get_images_by_park(
-        db=db,
-        park_id=park_id,
-        is_approved=is_approved,
-        is_primary=is_primary,
-    )
+    return manager_get_images_for_park(db, park_id, is_approved=is_approved, is_primary=is_primary)
