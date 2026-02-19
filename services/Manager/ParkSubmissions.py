@@ -4,7 +4,6 @@ from models.requests.ParkSubmissionRequest import ParkSubmissionRequest, ImageSu
 from models.responses.ParkSubmissionResponse import ParkSubmissionResponse, ValidationResult
 from sqlalchemy.orm import Session
 from services.Database import get_equipment
-from models.responses.CloudflareImageResponses import UploadedImage
 from services.Adapters.CloudflareAdapter import upload_images
 from services.Database.ParksTable import create_park
 from services.Database.ParkEquipmentTable import add_equipment_to_park
@@ -51,8 +50,10 @@ async def parse_submission_form_data(
     if equipment_ids:
         try:
             equipment_ids_list = json.loads(equipment_ids)
+
             if not isinstance(equipment_ids_list, list):
                 raise ValueError("equipment_ids must be a JSON array")
+
             equipment_ids_list = [UUID(eid) for eid in equipment_ids_list]
         except (json.JSONDecodeError, ValueError) as e:
             raise HTTPException(status_code=400, detail=f"Invalid equipment_ids format: {str(e)}")

@@ -140,3 +140,4 @@ async def upload_images(images: List[ImageSubmission]) -> List[UploadedImage]:
         logger.warning("Partial upload: %s ok, %s failed", len(ok), len(failures))
 
     return ok
+

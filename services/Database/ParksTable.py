@@ -8,6 +8,7 @@ from uuid import UUID
 from decimal import Decimal
 from datetime import datetime, timezone
 from models.database import Park
+from models.requests.parks import ModerateParkRequest
 
 
 def create_park(
@@ -175,37 +176,30 @@ def get_park_submissions_paginated(
 def moderate_park(
     db: Session,
     park_id: UUID,
-    status: str,
-    approved_by: Optional[UUID] = None,
-    admin_notes: Optional[str] = None,
+    request: ModerateParkRequest,
 ) -> Optional[Park]:
     """
     Moderate a park (approve, deny, or set to pending).
     """
     park = get_park(db, park_id)
+
     if not park:
         return None
-    
-    # Validate status
-    if status not in ['approved', 'rejected', 'pending']:
-        return None
-    
-    # Update status
+
+    status = request.status
     park.status = status
-    
+
     # Set approved_by and approved_at if approving/rejecting
-    if status in ['approved', 'rejected']:
-        if approved_by:
-            park.approved_by = approved_by
+    if status in ("approved", "rejected"):
+        if request.approved_by:
+            park.approved_by = request.approved_by
         park.approved_at = datetime.now(timezone.utc)
-    elif status == 'pending':
-        # Reset approval info when setting back to pending
+    elif status == "pending":
         park.approved_by = None
         park.approved_at = None
-    
-    # Update admin notes (trim whitespace)
-    if admin_notes is not None:
-        park.admin_notes = admin_notes.strip() if admin_notes else ""
+
+    if request.admin_notes is not None:
+        park.admin_notes = request.admin_notes.strip() or ""
     
     db.commit()
     db.refresh(park)
