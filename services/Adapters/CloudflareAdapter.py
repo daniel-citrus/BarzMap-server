@@ -11,6 +11,7 @@ import os
 from typing import List
 
 import httpx
+from cloudflare import AsyncCloudflare
 from fastapi import HTTPException
 
 from models.requests.ParkSubmissionRequest import ImageSubmission
@@ -140,4 +141,22 @@ async def upload_images(images: List[ImageSubmission]) -> List[UploadedImage]:
         logger.warning("Partial upload: %s ok, %s failed", len(ok), len(failures))
 
     return ok
+
+
+async def delete_image(image_id: str) -> None:
+    """
+    Delete an image from Cloudflare Images by id.
+    Uses the Cloudflare Python client. Raises on HTTP or API failure.
+    """
+    if not api_token or not account_id:
+        raise HTTPException(
+            status_code=503,
+            detail="Image service unavailable - missing configuration",
+        )
+    async with AsyncCloudflare(api_token=api_token) as client:
+        await client.images.v1.delete(
+            image_id=image_id,
+            account_id=account_id,
+        )
+    logger.debug("Deleted image %s", image_id)
 

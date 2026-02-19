@@ -21,6 +21,8 @@ from services.Database import (
     get_equipment_by_park,
     get_images_by_park,
 )
+from services.Adapters.CloudflareAdapter import delete_image as cloudflare_delete_image
+from services.Manager.Images import get_images_for_park
 
 def get_parks_list(
     db: Session,
@@ -95,15 +97,36 @@ def moderate_park_submission(
         )
     return park_to_submission_detail(db, moderated_park)
 
-def delete_park_submission(park_id: UUID, db: Session) -> None:
+def _cloudflare_image_id_from_url(url: str) -> str | None:
+    """Extract Cloudflare image ID from imagedelivery.net URL (format: .../account_hash/image_id/variant)."""
+    if "imagedelivery.net" not in url:
+        return None
+    parts = url.rstrip("/").split("/")
+    if len(parts) >= 5:
+        return parts[4]
+    return None
+
+
+async def delete_park_submission(park_id: UUID, db: Session) -> None:
     """Delete a park submission. Raises HTTPException on not found."""
     park = get_park(db, park_id)
+    
     if not park:
         raise HTTPException(status_code=404, detail="Park submission not found")
-    
+
+    images = get_images_for_park(db, park_id)
+
+    for img in images:
+        cf_id = _cloudflare_image_id_from_url(img.image_url)
+        if cf_id:
+            try:
+                await cloudflare_delete_image(cf_id)
+            except Exception:
+                pass  # Log but continue; park/image will be deleted from DB anyway
+
     success = delete_park(db, park.id)
 
     if not success:
         raise HTTPException(status_code=404, detail="Park submission not found")
 
-    
+

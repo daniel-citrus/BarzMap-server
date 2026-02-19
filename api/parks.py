@@ -15,7 +15,7 @@ from services.Manager.Parks import (
     get_parks_list,
     get_parks_in_location,
     moderate_park_submission as manager_moderate_park_submission,
-    delete_park_submission,
+    delete_park_submission as manager_delete_park_submission,
 )
 
 router = APIRouter()
@@ -108,7 +108,7 @@ def moderate_park_submission(
 
 
 @router.delete("/{park_id}", status_code=204, tags=["Parks"])
-def delete_park_submission(park_id: UUID, db: Session = Depends(get_db)):
+async def delete_park_submission(park_id: UUID, db: Session = Depends(get_db)):
     """Delete a park submission."""
-    delete_park_submission(park_id, db)
+    await manager_delete_park_submission(park_id, db)
     return None
