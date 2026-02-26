@@ -1,4 +1,8 @@
+import os
+
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
+
 from api import (
     parks_router,
     images_router,
@@ -36,6 +40,16 @@ app = FastAPI(
     description="API for finding and sharing outdoor gyms and workout parks",
     version="1.0.0",
     openapi_tags=tags_metadata,
+)
+
+cors_origins = os.getenv("CORS_ORIGINS", "*").split(",")
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=cors_origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
 # Routes used by the frontend

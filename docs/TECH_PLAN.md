@@ -40,86 +40,76 @@ A backend API for BarzMap, a web app where people can find and share outdoor gym
   - Update image approval status and flags
   - Delete inappropriate images
 
-## Start Up Checklist
+## P1 (Complete)
 
-### 1. Set Up Accounts & Services
-- [X] Set up PostgreSQL database in Docker
-  - [X] Configure Docker Compose for main and test databases
-  - [X] Set up database connection and environment variables
-- [X] Create Auth0 account and tenant
-  - [X] Configure social login providers (Google, Facebook)
-  - [X] Set up application settings and callbacks
-  - [X] Configure user metadata and roles
-- [X] Create Render account for backend hosting
-  - [X] Set up web service configuration
-  - [X] Configure environment variables and secrets
+- [x] Set up PostgreSQL database in Docker
+  - [x] Configure Docker Compose for main and test databases
+  - [x] Set up database connection and environment variables
+- [x] Create Auth0 account and tenant
+  - [x] Configure social login providers (Google, Facebook)
+  - [x] Set up application settings and callbacks
+  - [x] Configure user metadata and roles
+- [x] Create Render account for backend hosting
+  - [x] Set up web service configuration
+  - [x] Configure environment variables and secrets
+- [x] Set up FastAPI project structure
+  - [x] Create main.py with basic app configuration
+  - [x] Set up project folders (api, models, services)
+  - [x] Configure CORS and middleware
+- [x] Connect to PostgreSQL
+  - [x] Install and configure SQLAlchemy
+  - [x] Set up database connection (PostgresConnection.py)
+  - [x] Create database models (User, Park, Equipment, etc.)
+  - [x] Set up Alembic for migrations
+- [x] Create API endpoints
+  - [x] Health check endpoint (/health)
+  - [x] Parks CRUD endpoints
+  - [x] Equipment & Park-Equipment endpoints
+  - [x] User management endpoints
+  - [x] Reviews & Images endpoints
+  - [x] Events endpoints with location-based queries
+  - [x] Park submission endpoints (submit, view, list with pagination)
+- [x] Design and create database schema
+  - [x] Parks, Equipment, Users, Images, Reviews tables
+  - [x] Events table
+- [x] Implement core CRUD operations
+- [x] Park submission workflow
+  - [x] Submit parks with images and equipment
+  - [x] View submission details
+  - [x] List submissions with pagination and filtering
+- [x] Events feature
+  - [x] Event feed with location-based filtering
+  - [x] Distance calculations using haversine formula
+- [x] API Documentation (Swagger/OpenAPI auto-generated)
+- [x] Park approval workflow endpoints
+  - [x] Approve park submissions
+  - [x] Deny/reject park submissions
+  - [x] Set parks back to pending status
+  - [x] Add moderation comments
+  - [x] "Pending" vs "Approved" vs "Rejected" status logic
+- [x] Image moderation endpoints
+  - [x] Update image approval status and flags
+  - [x] Delete images
+- [x] Admin CRUD endpoints for all resources
+  - [x] Parks, Equipment, Images, Reviews, Park-Equipment, Events, Users
+- [x] Geospatial queries
+  - [x] Simple lat/long bounding box implemented
+  - [x] Distance/radius search for events
+- [x] Set up Pytest environment
+- [x] Create unit tests for all major endpoints
 
-### 2. Build Backend Foundation
-- [X] Set up FastAPI project structure
-  - [X] Create main.py with basic app configuration
-  - [X] Set up project folders (api, models, services)
-  - [X] Configure CORS and middleware
-- [X] Connect to PostgreSQL
-  - [X] Install and configure SQLAlchemy
-  - [X] Set up database connection (PostgresConnection.py)
-  - [X] Create database models (User, Park, Equipment, etc.)
-  - [X] Set up Alembic for migrations
-- [X] Create API endpoints
-  - [X] Health check endpoint (/health)
-  - [X] Parks CRUD endpoints
-  - [X] Equipment & Park-Equipment endpoints
-  - [X] User management endpoints
-  - [X] Reviews & Images endpoints
-  - [X] Events endpoints with location-based queries
-  - [X] Park submission endpoints (submit, view, list with pagination)
+## P2
+
 - [ ] Implement user authentication security
   - [ ] Auth0 JWT token validation middleware
   - [ ] Protected route decorators (Dependencies)
-
-### 3. Testing & Quality Assurance
-- [X] Set up Pytest environment
-- [X] Create unit tests for all major endpoints
 - [ ] Add integration tests for complex flows
 - [ ] Set up CI/CD pipeline (GitHub Actions)
-
-## Build Plan
-
-### Phase 1: Core API
-- [X] Design and create database schema
-  - [X] Parks, Equipment, Users, Images, Reviews tables
-  - [X] Events table
-- [X] Implement core CRUD operations
-- [X] Park submission workflow
-  - [X] Submit parks with images and equipment
-  - [X] View submission details
-  - [X] List submissions with pagination and filtering
-- [X] Events feature
-  - [X] Event feed with location-based filtering
-  - [X] Distance calculations using haversine formula
-- [X] API Documentation (Swagger/OpenAPI auto-generated)
-
-### Phase 2: Admin & Moderation
-- [X] Park approval workflow endpoints
-  - [X] Approve park submissions
-  - [X] Deny/reject park submissions
-  - [X] Set parks back to pending status
-  - [X] Add moderation comments
-  - [X] "Pending" vs "Approved" vs "Rejected" status logic
-- [X] Image moderation endpoints
-  - [X] Update image approval status and flags
-  - [X] Delete images
-- [X] Admin CRUD endpoints for all resources
-  - [X] Parks, Equipment, Images, Reviews, Park-Equipment, Events, Users
 - [ ] Implement role-based access control (RBAC)
   - [ ] Auth0 JWT token validation middleware
   - [ ] Admin-only endpoint protection
   - [ ] Moderator permissions enforcement
-
-### Phase 3: Advanced Features
-- [X] Geospatial queries (PostGIS or simple bounding box)
-  - [X] Simple lat/long bounding box implemented
-  - [X] Distance/radius search for events
-  - [ ] Advanced distance/radius search for parks
+- [ ] Advanced distance/radius search for parks
 - [ ] AI Integration
   - [ ] Park equipment detection from images (Zero-shot / YOLO)
 
