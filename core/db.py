@@ -10,7 +10,6 @@ import os
 
 load_dotenv()
 
-
 def _build_database_url(
     user: str = None,
     password: str = None,

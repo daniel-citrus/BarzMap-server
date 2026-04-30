@@ -6,6 +6,7 @@ from .equipment import router as equipment_router
 from .events import router as events_router
 from .images import router as images_router
 from .park_equipment import router as park_equipment_router
+from .users import router as users_router
 
 __all__ = [
     "parks_router",
@@ -13,4 +14,5 @@ __all__ = [
     "events_router",
     "images_router",
     "park_equipment_router",
+    "users_router",
 ]

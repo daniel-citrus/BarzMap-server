@@ -9,7 +9,10 @@ from api import (
     equipment_router,
     events_router,
     park_equipment_router,
+    users_router,
 )
+
+
 
 # Tag metadata for better Swagger UI organization
 tags_metadata = [
@@ -32,6 +35,10 @@ tags_metadata = [
     {
         "name": "Images",
         "description": "Images for a park.",
+    },
+    {
+        "name": "Users",
+        "description": "User profiles.",
     },
 ]
 
@@ -58,3 +65,4 @@ app.include_router(images_router, prefix="/api/images", tags=["Images"])
 app.include_router(equipment_router, prefix="/api/equipment", tags=["Equipment"])
 app.include_router(events_router, prefix="/api/events", tags=["Events"])
 app.include_router(park_equipment_router, prefix="/api/park-equipment", tags=["Park Equipment"])
+app.include_router(users_router, prefix="/api/users", tags=["Users"])

@@ -18,6 +18,7 @@ A backend API for BarzMap, a web app where people can find and share outdoor gym
 - **Render** - Hosts the API server
 - **Docker** - PostgreSQL database in containers
 - **Cloudflare** - Image delivery / Storage (Optional)
+- **Redis** - Rate limiting (planned)
 
 ## Features
 
@@ -109,6 +110,9 @@ A backend API for BarzMap, a web app where people can find and share outdoor gym
   - [ ] Auth0 JWT token validation middleware
   - [ ] Admin-only endpoint protection
   - [ ] Moderator permissions enforcement
+- [ ] Redis rate limiting
+  - [ ] Park submission rate limiting (per user/IP)
+  - [ ] Map/location request rate limiting (per user/IP)
 - [ ] Advanced distance/radius search for parks
 - [ ] AI Integration
   - [ ] Park equipment detection from images (Zero-shot / YOLO)

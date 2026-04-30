@@ -9,6 +9,8 @@ from models.responses.EquipmentResponses import EquipmentResponse
 from services.Database import get_db
 from services.Manager.Equipment import get_all_equipment_types
 
+from core.auth0Client import auth0
+
 router = APIRouter()
 
 
@@ -16,7 +18,8 @@ router = APIRouter()
 def get_all_equipment_types_endpoint(
     skip: int = Query(0, ge=0),
     limit: int = Query(100, ge=1, le=100),
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    claims: dict = Depends(auth0.require_auth())
 ):
     """Get all equipment types."""
     return get_all_equipment_types(db, skip=skip, limit=limit)
