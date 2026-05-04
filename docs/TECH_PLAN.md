@@ -25,7 +25,7 @@ A backend API for BarzMap, a web app where people can find and share outdoor gym
 ### 1. API Endpoints
 - **Parks**: Create, Read, Update, Delete (CRUD) parks
 - **Equipment**: Manage park equipment inventory
-- **Users**: User profiles and role management
+- **Users**: User profiles backed by Auth0 identity (roles live in Auth0 / API layer, not on `users`)
 - **Images**: Handle park image metadata and approvals
 - **Reviews**: User reviews and ratings for parks
 - **Events**: Event feed with location-based filtering and distance calculations

@@ -1,23 +1,13 @@
-from enum import Enum
-from pydantic import BaseModel, Field
-from typing import Optional
-
-
-class Role(str, Enum):
-    user = "user"
-    moderator = "moderator"
-    admin = "admin"
+from pydantic import BaseModel
 
 
 class UserCreate(BaseModel):
     auth0_id: str
     email: str
     name: str
-    role: Role = Field(
-        default=Role.user, description="User role: user, moderator, admin"
-    )
 
-class UserUpdate(BaseModel): 
+
+class UserUpdate(BaseModel):
     id: str
     email: str
     name: str

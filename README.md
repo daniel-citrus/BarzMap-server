@@ -25,7 +25,7 @@ Backend API server for BarzMap, a web application where people can find and shar
 
 ## About The Project
 
-BarzMap Server is a RESTful API built with FastAPI that powers the BarzMap application. It provides endpoints for managing parks, equipment, users, images, reviews, and events. The server includes an approval workflow for user-submitted parks and supports role-based access control for administrators.
+BarzMap Server is a RESTful API built with FastAPI that powers the BarzMap application. It provides endpoints for managing parks, equipment, users, images, reviews, and events. The server includes an approval workflow for user-submitted parks. Administrator and moderator access can be enforced via Auth0 and API authorization rather than columns on the `users` table.
 
 ### Key Features
 

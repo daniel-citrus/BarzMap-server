@@ -13,8 +13,6 @@ def create_user(
     email: str,
     name: str,
     profile_picture_url: Optional[str] = None,
-    role: str = "user",
-    is_active: bool = True,
 ) -> User:
     """Create a new user."""
     user = User(
@@ -22,8 +20,6 @@ def create_user(
         email=email,
         name=name,
         profile_picture_url=profile_picture_url,
-        role=role,
-        is_active=is_active,
     )
     db.add(user)
     db.commit()
@@ -50,13 +46,9 @@ def get_all_users(
     db: Session,
     skip: int = 0,
     limit: int = 100,
-    is_active: Optional[bool] = None,
 ) -> List[User]:
-    """Get all users with optional filtering."""
-    query = db.query(User)
-    if is_active is not None:
-        query = query.filter(User.is_active == is_active)
-    return query.offset(skip).limit(limit).all()
+    """Get all users with pagination."""
+    return db.query(User).offset(skip).limit(limit).all()
 
 
 def update_user(
@@ -65,25 +57,19 @@ def update_user(
     email: Optional[str] = None,
     name: Optional[str] = None,
     profile_picture_url: Optional[str] = None,
-    role: Optional[str] = None,
-    is_active: Optional[bool] = None,
 ) -> Optional[User]:
     """Update a user."""
     user = get_user(db, user_id)
     if not user:
         return None
-    
+
     if email is not None:
         user.email = email
     if name is not None:
         user.name = name
     if profile_picture_url is not None:
         user.profile_picture_url = profile_picture_url
-    if role is not None:
-        user.role = role
-    if is_active is not None:
-        user.is_active = is_active
-    
+
     db.commit()
     db.refresh(user)
     return user
@@ -94,8 +80,7 @@ def delete_user(db: Session, user_id: UUID) -> bool:
     user = get_user(db, user_id)
     if not user:
         return False
-    
+
     db.delete(user)
     db.commit()
     return True
-

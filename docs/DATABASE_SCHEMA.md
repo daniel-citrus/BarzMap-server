@@ -14,26 +14,18 @@ CREATE TABLE users (
     auth0_id VARCHAR(255) UNIQUE NOT NULL,
     email VARCHAR(255) UNIQUE NOT NULL,
     name VARCHAR(255) NOT NULL,
-    profile_picture_url TEXT,
-    role VARCHAR(50) DEFAULT 'user' CHECK (role IN ('user', 'moderator', 'admin')),
-    join_date TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-    is_active BOOLEAN DEFAULT TRUE,
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-    updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+    profile_picture_url TEXT
 );
 ```
 
 **Fields:**
 - `id`: Unique identifier for the user
-- `auth0_id`: Auth0 user identifier (external auth)
+- `auth0_id`: Auth0 user identifier (external auth; maps to JWT `sub`)
 - `email`: User's email address
 - `name`: User's display name
-- `profile_picture_url`: URL to user's profile picture
-- `role`: User role (user, moderator, admin)
-- `join_date`: When the user joined
-- `is_active`: Whether the account is active
-- `created_at`: Record creation timestamp
-- `updated_at`: Record last update timestamp
+- `profile_picture_url`: URL to user's profile picture (optional)
+
+Administrative roles, account status, and audit timestamps are not stored on this table; use Auth0 (roles, actions, metadata) and/or future API rules as needed.
 
 ### 2. Parks Table
 Stores information about outdoor gyms and workout parks with integrated approval workflow.
@@ -220,7 +212,6 @@ CREATE INDEX idx_park_equipment_park_id ON park_equipment(park_id);
 CREATE INDEX idx_images_park_id ON images(park_id);
 CREATE INDEX idx_images_approved ON images(is_approved);
 CREATE INDEX idx_reviews_park_id ON reviews(park_id);
-CREATE INDEX idx_users_role ON users(role);
 CREATE INDEX idx_events_park_id ON events(park_id);
 CREATE INDEX idx_events_date ON events(event_date);
 ```
@@ -257,5 +248,5 @@ INSERT INTO equipment (id, name, description, icon_name) VALUES
 1. **Geographic Data**: Latitude and longitude are stored as DECIMAL for precision
 2. **Single Table Approach**: Parks table handles both submission and approval workflow
 3. **Image Storage**: Images are stored as URLs (Supabase Storage handles the actual files)
-4. **Audit Trail**: The schema includes timestamps for audit purposes
+4. **Audit Trail**: Parks, reviews, events, and other tables include timestamps where needed; the `users` table intentionally stores only core identity fields
 5. **Scalability**: Indexes are designed for common query patterns (location-based searches, status filtering)

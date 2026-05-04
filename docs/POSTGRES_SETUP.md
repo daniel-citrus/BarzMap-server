@@ -166,7 +166,7 @@ SELECT current_user;
 ```sql
 -- Select data
 SELECT * FROM users;
-SELECT name, email FROM users WHERE role = 'admin';
+SELECT name, email FROM users WHERE email = 'admin@example.com';
 
 -- Insert data
 INSERT INTO users (auth0_id, email, name) 
@@ -232,7 +232,7 @@ conn = psycopg.connect(
 cur = conn.cursor(row_factory=dict_row)
 
 # Execute a query
-cur.execute("SELECT * FROM users WHERE role = %s", ("admin",))
+cur.execute("SELECT * FROM users WHERE email = %s", ("admin@example.com",))
 users = cur.fetchall()
 
 # Execute with parameters (prevents SQL injection)

@@ -16,9 +16,9 @@ Define the expected sequence when a user creates (or effectively creates) a Barz
 
 ## High-Level Sequence
 
-```
-//www.plantuml.com/plantuml/png/dL3DRXD13BxlKrWz9M8hE4UYQf9o22eeK0f7vEwOrEhip33sD8IdnxkJA2pSUbdlsD-FFr-BOjRI-oPPvOuJ1eMBjMUokapf0b2WFgUGPT77D-Dq_9iELvX_Vy04o-rcX5YT0hPHT9VfxjFjEBzPDKVBowkhAhY0EpK62Ez2IQzzt760sNtWPyg27cw7nhmPiN0vqAh20ZwJbXnWSmCQdoZ0Ay2k8v7wd1XjDmjOe_U09cDTxb390GMN8Xjep_e8Ay9C-SWsofdw5JqxOy3xRrzWnYA5ScjQpXmwQe5-fNOCWBOHpKzaYxkm_UDJIL34f1yEW4EEx-nW9kLXtg1NkBUHIR2eD01WBCjvidutz3diga2E-n5Ye-ajrZ4OgX1a-bb85520_gOsv8MgbOia4A9Mm5dlRAaPEmLsPA9wWCuZzp9kR5bxPDz2mDw29-vguYfoJhq9vgGGQ5yNdvro_okGum_sT19gBQ6djmDb_lyjFjB-1MUm7VnXC7fcuHZ87UyHN7DjdzBxFm00
+The diagram below is the source of truth. If an older rendered image link was embedded elsewhere, regenerate from this PlantUML.
 
+```
 @startuml
 participant "Client App" as Client
 participant "Auth0" as Auth0
@@ -34,7 +34,7 @@ alt User exists
     DB -->> API: Existing user row
     API -->> Client: Continue request as existing user
 else User does not exist
-    API ->> DB: Insert new user (auth0_id, email, name, profile picture, role=user)
+    API ->> DB: Insert new user (auth0_id, email, name, profile_picture_url)
     DB -->> API: New user row
     API -->> Client: Continue request as newly provisioned user
 end
@@ -57,15 +57,13 @@ end
    - `name` (fallback strategy if missing)
    - `picture` (optional)
 6. API checks whether a user already exists by `auth0_id`.
-7. If not found, API creates a user row with default values:
-   - `role = "user"`
-   - `is_active = true`
+7. If not found, API creates a user row with the mapped identity fields only (`auth0_id`, `email`, `name`, optional `profile_picture_url`).
 8. API continues serving the original protected request with the resolved app user context.
 
 ## Provisioning Rules
 - **Primary identity key:** `auth0_id` (`sub` claim).
 - **Idempotency:** Repeated logins with same `sub` must never create duplicate users.
-- **Role default:** New users get `user` role unless explicitly elevated by admin workflow.
+- **Roles and permissions:** Not persisted on `users`. Use Auth0 roles, Actions, or app/API authorization for admin or moderator behavior.
 - **Missing optional claims:** `picture` can be null.
 - **Email updates:** If Auth0 email changes later, decide whether to sync (recommended: explicit sync policy, not silent overwrite).
 
@@ -99,7 +97,7 @@ end
   - `email`
   - `name`
   - `is_new_user` (true only when provisioned during this request)
-  - optional timestamps
+  - optional client-facing metadata (not required to mirror database columns on `users`)
 
 ## Data Mapping
 - Auth0 `sub` -> `users.auth0_id`

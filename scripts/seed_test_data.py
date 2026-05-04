@@ -30,29 +30,21 @@ def seed_users(db: Session) -> dict[str, User]:
             "auth0_id": "auth0|test_user_1",
             "email": "testuser1@example.com",
             "name": "Daniel",
-            "role": "user",
-            "is_active": True,
         },
         {
             "auth0_id": "auth0|test_user_2",
             "email": "testuser2@example.com",
             "name": "Test User Two",
-            "role": "user",
-            "is_active": True,
         },
         {
             "auth0_id": "auth0|test_admin",
             "email": "admin@example.com",
             "name": "Test Admin",
-            "role": "admin",
-            "is_active": True,
         },
         {
             "auth0_id": "auth0|test_moderator",
             "email": "moderator@example.com",
             "name": "Test Moderator",
-            "role": "moderator",
-            "is_active": True,
         },
     ]
     

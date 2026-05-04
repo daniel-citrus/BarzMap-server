@@ -22,4 +22,5 @@ def get_all_equipment_types_endpoint(
     claims: dict = Depends(auth0.require_auth())
 ):
     """Get all equipment types."""
-    return get_all_equipment_types(db, skip=skip, limit=limit)
+    # return get_all_equipment_types(db, skip=skip, limit=limit)
+    return claims
