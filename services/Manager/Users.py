@@ -1,13 +1,21 @@
-from uuid import UUID
-from ...core.auth0Client import auth0
+from typing import Optional
+from sqlalchemy.orm import Session
+
+from models.database import User
+from services.Database.UsersTable import get_user, get_user_by_auth0_id
+from ..Adapters.Auth0ManagementAdapter import updateUserPermissions
+
 """
 User-related business logic.
 """
 
 
-def LoginSequence(user_id: UUID) -> None:
-    print('login sequence successful', user_id)
-    # verify user with auth0
-    # if new user
-        # create new user account with basic access
-    # return entry
+def LoginSequence(db: Session, auth0Id: str) -> Optional[User]:
+    user = get_user_by_auth0_id(db, auth0Id)
+
+    if user is None:
+        return None
+
+    # if user does not exist: generate new entry, grant basic access (TODO)
+
+    return get_user(db, user.id)

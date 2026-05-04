@@ -1,3 +1,6 @@
+"""
+Single configured Auth0 instance for creating protected FastAPI routes.
+"""
 from fastapi import FastAPI, Depends
 from fastapi_plugin.fast_api_client import Auth0FastAPI
 import os
