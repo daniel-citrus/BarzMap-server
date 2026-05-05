@@ -30,7 +30,6 @@ def getUser(auth0Id: str) -> None:
     url = f"https://{AUTH0_DOMAIN}/api/v2/users/{auth0Id}"
     accessToken = getManagementAPIAccessToken()
 
-    print("accccc", accessToken)
     headers = {
         "Accept": "application/json",
         "Authorization": f"Bearer {accessToken}",
@@ -38,7 +37,7 @@ def getUser(auth0Id: str) -> None:
 
     response = requests.request("GET", url, headers=headers)
 
-    print(response.text)
+    return response.payload
 
 
 def getManagementAPIAccessToken() -> dict[str, Any]:
