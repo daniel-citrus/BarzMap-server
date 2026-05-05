@@ -104,6 +104,7 @@ A backend API for BarzMap, a web app where people can find and share outdoor gym
 - [ ] Implement user authentication security
   - [ ] Auth0 JWT token validation middleware
   - [ ] Protected route decorators (Dependencies)
+  - [ ] Management API access token caching
 - [ ] Add integration tests for complex flows
 - [ ] Set up CI/CD pipeline (GitHub Actions)
 - [ ] Implement role-based access control (RBAC)
