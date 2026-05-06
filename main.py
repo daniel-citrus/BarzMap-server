@@ -13,7 +13,6 @@ from api import (
 )
 
 
-
 # Tag metadata for better Swagger UI organization
 tags_metadata = [
     {
@@ -64,5 +63,7 @@ app.include_router(parks_router, prefix="/api/park", tags=["Parks"])
 app.include_router(images_router, prefix="/api/images", tags=["Images"])
 app.include_router(equipment_router, prefix="/api/equipment", tags=["Equipment"])
 app.include_router(events_router, prefix="/api/events", tags=["Events"])
-app.include_router(park_equipment_router, prefix="/api/park-equipment", tags=["Park Equipment"])
+app.include_router(
+    park_equipment_router, prefix="/api/park-equipment", tags=["Park Equipment"]
+)
 app.include_router(users_router, prefix="/api/users", tags=["Users"])

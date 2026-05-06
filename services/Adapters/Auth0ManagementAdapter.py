@@ -3,7 +3,7 @@ import json
 import os
 from dotenv import load_dotenv
 import http.client
-from typing import Any
+from typing import Any, Optional
 
 load_dotenv()
 
@@ -26,7 +26,7 @@ def updateUserPermissions(auth0Id: str, role: str = [AUTH0_ROLE_USER]):
     print(response.text)
 
 
-def getUser(auth0Id: str) -> None:
+def getUser(auth0Id: str) -> Optional[dict[str, Any]]:
     url = f"https://{AUTH0_DOMAIN}/api/v2/users/{auth0Id}"
     accessToken = getManagementAPIAccessToken()
 
@@ -35,12 +35,14 @@ def getUser(auth0Id: str) -> None:
         "Authorization": f"Bearer {accessToken}",
     }
 
-    response = requests.request("GET", url, headers=headers)
+    response = requests.request("GET", url, headers=headers, timeout=30)
+    if response.status_code == 404:
+        return None
+    response.raise_for_status()
+    return response.json()
 
-    return response.payload
 
-
-def getManagementAPIAccessToken() -> dict[str, Any]:
+def getManagementAPIAccessToken() -> str:
     conn = http.client.HTTPSConnection(AUTH0_DOMAIN)
 
     payload = json.dumps(
