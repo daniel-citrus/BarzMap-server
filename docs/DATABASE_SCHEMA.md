@@ -38,18 +38,12 @@ CREATE TABLE parks (
     latitude DECIMAL(10, 8) NOT NULL,
     longitude DECIMAL(11, 8) NOT NULL,
     address TEXT,
-    city VARCHAR(255),
-    state VARCHAR(100),
-    country VARCHAR(100),
-    postal_code VARCHAR(20),
     status VARCHAR(50) DEFAULT 'pending' CHECK (status IN ('pending', 'approved', 'rejected')),
     submitted_by UUID REFERENCES users(id) ON DELETE SET NULL,
     submit_date TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
     approved_by UUID REFERENCES users(id) ON DELETE SET NULL,
     approved_at TIMESTAMP WITH TIME ZONE,
     admin_notes TEXT,
-    rating DECIMAL(3, 2) CHECK (rating >= 0 AND rating <= 5),
-    review_count INTEGER DEFAULT 0,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
@@ -61,16 +55,13 @@ CREATE TABLE parks (
 - `description`: Detailed description of the park
 - `latitude`: Geographic latitude coordinate
 - `longitude`: Geographic longitude coordinate
-- `address`: Street address
-- `city`, `state`, `country`, `postal_code`: Location details
+- `address`: Full address string (single field; city/state/country/postal_code were removed in migration `003_update_parks_address`)
 - `status`: Approval status (pending, approved, rejected)
 - `submitted_by`: User who submitted the park
 - `submit_date`: When the park was submitted
 - `approved_by`: Admin who approved/rejected the park
 - `approved_at`: When the park was approved/rejected
 - `admin_notes`: Notes from admin review
-- `rating`: Average user rating (0-5)
-- `review_count`: Number of reviews
 - `created_at`, `updated_at`: Timestamps
 
 ### 3. Equipment Table
@@ -79,7 +70,7 @@ Stores different types of workout equipment.
 ```sql
 CREATE TABLE equipment (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    name VARCHAR(255) NOT NULL,
+    name VARCHAR(255) UNIQUE NOT NULL,
     description TEXT,
     icon_name VARCHAR(100),
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
@@ -211,9 +202,14 @@ CREATE INDEX idx_parks_approved_by ON parks(approved_by);
 CREATE INDEX idx_park_equipment_park_id ON park_equipment(park_id);
 CREATE INDEX idx_images_park_id ON images(park_id);
 CREATE INDEX idx_images_approved ON images(is_approved);
+CREATE INDEX idx_images_uploaded_by ON images(uploaded_by);
 CREATE INDEX idx_reviews_park_id ON reviews(park_id);
+CREATE INDEX idx_reviews_user_id ON reviews(user_id);
 CREATE INDEX idx_events_park_id ON events(park_id);
 CREATE INDEX idx_events_date ON events(event_date);
+CREATE UNIQUE INDEX uq_primary_image_per_park
+ON images(park_id)
+WHERE is_primary = true;
 ```
 
 ## Constraints and Relationships
