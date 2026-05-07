@@ -17,7 +17,6 @@ Backend API server for BarzMap, a web application where people can find and shar
 - [Testing](#testing)
 - [Database Migrations](#database-migrations)
 - [Documentation](#documentation)
-- [Roadmap](#roadmap)
 - [Contributing](#contributing)
 - [License](#license)
 
@@ -25,18 +24,16 @@ Backend API server for BarzMap, a web application where people can find and shar
 
 ## About The Project
 
-BarzMap Server is a RESTful API built with FastAPI that powers the BarzMap application. It provides endpoints for managing parks, equipment, users, images, reviews, and events. The server includes an approval workflow for user-submitted parks. Administrator and moderator access can be enforced via Auth0 and API authorization rather than columns on the `users` table.
+BarzMap Server is a RESTful API built with FastAPI that powers the BarzMap application. The **HTTP surface mounted in `main.py` is intentionally trimmed** to what the current frontend uses; the database and service layers still include more (for example `reviews` tables and Auth0 helpers) than is exposed over HTTP. User-submitted parks go through a moderation-oriented workflow (`pending` / `approved` / `rejected`). Administrator and moderator access is intended to be enforced via Auth0 and API authorization rather than columns on the `users` table (JWT route protection is not fully wired yet—see `docs/TECH_PLAN.md`).
 
 ### Key Features
 
-- **Parks Management**: CRUD operations for outdoor gyms and workout parks
-- **Equipment Tracking**: Manage equipment inventory at parks
-- **User Authentication**: Auth0 integration for secure user management
-- **Image Management**: Handle park photos with approval workflow
-- **Reviews & Ratings**: User reviews and ratings system
-- **Events**: Community events at parks
-- **Admin Workflows**: Park approval and content moderation
-- **Location-based Queries**: Search parks by geographic coordinates
+- **Parks**: List, bounding-box query, multipart submission, moderation (`PATCH`), and submission delete (`DELETE`) under `/api/park`
+- **Equipment & park equipment**: Read-only listing (`/api/equipment`, `/api/park-equipment/...`)
+- **Auth0**: Management integration and user bootstrap/login flows under `/api/users` (not a separate `/auth` router)
+- **Images**: List images for a park (`/api/images/...`); uploads happen as part of park submission (no standalone image moderation HTTP API yet)
+- **Events**: Feed with optional location and date filters (`/api/events`)
+- **Schema support (not fully exposed over HTTP)**: Reviews and richer admin/list contracts exist in the DB and docs but are **not** mounted as `/api/reviews` or `/api/admin/...` in `main.py` today
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -135,17 +132,31 @@ The API will be available at `http://localhost:8000`
 
 ## API Endpoints
 
-The API provides the following endpoint groups:
+Routers are registered in `main.py`. The docstrings in `api/__init__.py` describe this as the **frontend-trimmed** set.
 
-- **Authentication** (`/auth`) - User authentication endpoints
-- **Users** (`/api/users`) - User management
-- **Parks** (`/api/park`) - Park CRUD operations and location-based queries
-- **Equipment** (`/api/equipment`) - Equipment type management
-- **Park Equipment** (`/api/park-equipment`) - Link equipment to parks
-- **Images** (`/api/images`) - Image upload and management
-- **Reviews** (`/api/reviews`) - User reviews and ratings
-- **Events** (`/api/events`) - Park events management
-- **Admin** (`/api/admin`) - Administrative operations
+### Mounted today (`main.py`)
+
+| Prefix | Purpose |
+|--------|---------|
+| `/api/park` | `GET /` list; `GET /location` bounding box; `POST /` submit park (multipart); `PATCH /{park_id}` moderation; `DELETE /{park_id}` remove submission |
+| `/api/images` | `GET /park/{park_id}` list images for a park (optional query filters) |
+| `/api/equipment` | `GET /` list equipment types |
+| `/api/park-equipment` | `GET /park/{park_id}/equipment` equipment for one park |
+| `/api/events` | `GET /` events feed (`lat` / `lng` / `radius` / `fromDate` / `limit`) |
+| `/api/users` | `GET /` list users; `POST /{auth0_id}` login/bootstrap; `GET` / `POST` helpers for Auth0 roles and permissions |
+
+There is **no** `GET /health` on the FastAPI app today (only Docker healthchecks in Compose).
+
+### Untrimmed / not mounted on the app (yet)
+
+These appear in older docs, broader product plans, or `docs/FEDC.md`, but **are not** included in `main.py` right now:
+
+- **`/auth`** — no dedicated auth router; login/bootstrap lives under `/api/users`
+- **`/api/reviews`** — `reviews` exist in the database layer; no reviews router is mounted
+- **`/api/admin/...`** — e.g. `GET /api/admin/park-submissions` in FEDC; moderation today is `PATCH` / `DELETE` on `/api/park/{park_id}`, not under `/api/admin`
+- **Full CRUD for every entity over HTTP** — many modules are read-oriented or workflow-specific (see table above)
+- **Dedicated image moderation HTTP API** — not exposed; submission flow uses Cloudflare where configured
+- **GeoJSON `bbox` on `GET /api/park`** — map use case uses `GET /api/park/location` with separate min/max lat/lng query params (see `docs/FEDC.md` implementation notes)
 
 ### API Documentation
 
@@ -159,52 +170,46 @@ Interactive API documentation is automatically available at:
 
 ```
 BarzMap-server/
-├── api/                    # API route handlers
-│   ├── AdminRouter.py
-│   ├── EquipmentRouter.py
-│   ├── EventsRouter.py
-│   ├── ImagesRouter.py
-│   ├── ParkEquipmentRouter.py
-│   ├── ParksRouter.py
-│   ├── ReviewsRouter.py
-│   └── UsersRouter.py
+├── api/                    # FastAPI routers (mounted from main.py)
+│   ├── equipment.py
+│   ├── events.py
+│   ├── images.py
+│   ├── park_equipment.py
+│   ├── parks.py
+│   └── users.py
 ├── alembic/                # Database migrations
 │   └── versions/
 ├── docs/                   # Documentation
 │   ├── DATABASE_SCHEMA.md
+│   ├── FEDC.md
 │   ├── POSTGRES_SETUP.md
 │   └── TECH_PLAN.md
-├── models/                 # Data models
-│   ├── database/          # SQLAlchemy models
-│   └── requests/          # Pydantic request models
-├── services/              # Business logic
-│   ├── Authentication/    # Auth0 integration
-│   ├── Database/         # Database operations
-│   └── Manager/          # Business logic managers
-│       ├── CloudFlare.py # Image storage service
-│       └── ParkSubmissions.py
-├── tests/                 # Test files
+├── models/                 # Data models (ORM + Pydantic)
+│   ├── database/
+│   ├── requests/
+│   └── responses/
+├── services/
+│   ├── Adapters/           # Auth0, Cloudflare, etc.
+│   ├── Database/          # Tables, PostgresConnection
+│   └── Manager/           # Business logic orchestration
+├── scripts/               # Seeds, purge utilities
 ├── main.py                # FastAPI application entry point
-├── requirements.txt       # Python dependencies
-├── docker-compose.yml     # Docker Compose configuration
-└── alembic.ini           # Alembic configuration
+├── pytest.ini             # pytest config (test package not present yet)
+├── requirements.txt
+├── docker-compose.yml
+├── docker-compose.test.yml
+└── alembic.ini
 ```
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 ## Testing
 
-Run tests using pytest:
+`pytest.ini` sets `testpaths = tests`, but **there is no `tests/` package in the repo yet**. When you add tests:
 
 ```sh
-# Run all tests
 pytest
-
-# Run with coverage
 pytest --cov=. --cov-report=html
-
-# Run specific test file
-pytest tests/test_parks.py
 ```
 
 For testing, use the test database configuration in `docker-compose.test.yml`:
@@ -248,31 +253,7 @@ Additional documentation is available in the `docs/` directory:
 
 - **[DATABASE_SCHEMA.md](docs/DATABASE_SCHEMA.md)** - Complete database schema documentation
 - **[POSTGRES_SETUP.md](docs/POSTGRES_SETUP.md)** - PostgreSQL setup guide
-- **[TECH_PLAN.md](docs/TECH_PLAN.md)** - Technical plan and roadmap
-
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
-
-## Roadmap
-
-### Phase 1: Core API ✅
-- [x] Database schema design and implementation
-- [x] Core CRUD operations for all entities
-- [x] API documentation (Swagger/OpenAPI)
-- [x] Basic location-based queries
-
-### Phase 2: Admin & Moderation 🚧
-- [ ] Role-based access control (RBAC)
-- [ ] Park approval workflow endpoints
-- [ ] Image moderation endpoints
-- [ ] Content moderation tools
-
-### Phase 3: Advanced Features 📋
-- [ ] Advanced geospatial queries (PostGIS)
-- [ ] AI-powered equipment detection from images
-- [ ] Real-time notifications
-- [ ] Analytics and reporting
-
-See the [open issues](https://github.com/your_username/BarzMap-server/issues) for a full list of proposed features and known issues.
+- **[TECH_PLAN.md](docs/TECH_PLAN.md)** - Technical plan, implementation checkpoints, backlog, **and roadmap** (phase-based); see especially [Roadmap](docs/TECH_PLAN.md#roadmap).
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -290,7 +271,7 @@ Contributions are what make the open source community such an amazing place to l
 
 ## License
 
-Distributed under the MIT License. See `LICENSE.txt` for more information.
+MIT License is intended for this project; add a root `LICENSE` or `LICENSE.txt` file when publishing.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
