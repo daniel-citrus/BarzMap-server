@@ -1,6 +1,7 @@
 """
 CRUD operations for Users table.
 """
+
 from sqlalchemy.orm import Session
 from typing import Optional, List
 from uuid import UUID
@@ -73,6 +74,17 @@ def update_user(
     db.commit()
     db.refresh(user)
     return user
+
+
+def delete_user_by_auth0_id(db: Session, auth0_id: str) -> bool:
+    """Delete a user by Auth0 ID."""
+    user = get_user_by_auth0_id(db, auth0_id)
+    if not user:
+        return False
+
+    db.delete(user)
+    db.commit()
+    return True
 
 
 def delete_user(db: Session, user_id: UUID) -> bool:

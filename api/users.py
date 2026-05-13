@@ -5,14 +5,16 @@ User endpoints.
 from typing import Any, List, Optional
 
 from fastapi import APIRouter, Depends, HTTPException, Query
-from pydantic import BaseModel, Field
+from requests.exceptions import HTTPError
 from sqlalchemy.orm import Session
 
+from models.requests.users import UpdateUserPermissionsRequest
 from models.responses.UsersResponses import UserResponse
 from services.Database import get_db
 from services.Database.UsersTable import get_all_users
 from services.Manager.Users import LoginSequence
 from services.Adapters.Auth0ManagementAdapter import (
+    deleteUser,
     getUserRoles,
     updateUserPermissions,
 )
@@ -20,12 +22,6 @@ from services.Adapters.Auth0ManagementAdapter import (
 router = APIRouter()
 
 _INVALID_AUTH0_PATH = frozenset({"undefined", "null"})
-
-
-class UpdateUserPermissionsRequest(BaseModel):
-    roles: List[str] = Field(
-        default_factory=list, description="Auth0 role IDs to assign to the user."
-    )
 
 
 @router.get("/", response_model=List[UserResponse], tags=["Users"])
@@ -85,3 +81,26 @@ def get_user_roles(auth0_id: str) -> Optional[list[dict[str, Any]]]:
             detail="Missing Auth0 user id (expected the Auth0 `sub`).",
         )
     return getUserRoles(normalized)
+
+
+@router.delete("/{auth0_id}", status_code=204, tags=["Users"])
+def delete_auth0_user(auth0_id: str) -> None:
+    normalized = auth0_id.strip()
+    if not normalized or normalized.lower() in _INVALID_AUTH0_PATH:
+        raise HTTPException(
+            status_code=400,
+            detail="Missing Auth0 user id (expected the Auth0 `sub`).",
+        )
+    try:
+        deleteUser(normalized)
+    except HTTPError as exc:
+        response = exc.response
+        if response is None:
+            raise HTTPException(
+                status_code=502, detail="Auth0 delete request failed."
+            ) from exc
+        try:
+            detail: Any = response.json()
+        except ValueError:
+            detail = response.text or "Auth0 delete failed."
+        raise HTTPException(status_code=response.status_code, detail=detail) from exc

@@ -2,7 +2,11 @@ from typing import Optional
 from sqlalchemy.orm import Session
 
 from models.database import User
-from services.Database.UsersTable import create_user, get_user_by_auth0_id
+from services.Database.UsersTable import (
+    create_user,
+    delete_user_by_auth0_id,
+    get_user_by_auth0_id,
+)
 from ..Adapters.Auth0ManagementAdapter import (
     updateUserPermissions,
     getUser,
@@ -44,3 +48,17 @@ def LoginSequence(db: Session, auth0Id: str) -> Optional[User]:
         updateUserPermissions(auth0Id)
 
     return user
+
+
+def delete_user_by_auth0(db: Session, auth0_id: str) -> bool:
+    """
+    Delete a user by Auth0 ID.
+    Deletes the user from Auth0 (via Auth0ManagementAdapter) and from the local database.
+    Returns True if user was deleted in DB, False if not found.
+    """
+    from services.Adapters.Auth0ManagementAdapter import deleteUser
+
+    # Delete from Auth0 (raises exception on HTTP error)
+    deleteUser(auth0_id)
+    # Delete from local DB
+    return delete_user_by_auth0_id(db, auth0_id)

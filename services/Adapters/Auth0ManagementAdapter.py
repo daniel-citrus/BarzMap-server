@@ -123,3 +123,13 @@ def getManagementAPIAccessToken() -> str:
         raise ValueError(f"Auth0 client_credentials failed: {parsed_body}")
 
     return parsed_body["access_token"]
+
+
+def deleteUser(auth0_id: str) -> None:
+    url = f"https://{AUTH0_DOMAIN}/api/v2/users/{auth0_id}"
+    accessToken = getManagementAPIAccessToken()
+    headers = authorizationHeaders(accessToken)
+    response = requests.delete(url, headers=headers, timeout=30)
+    response.raise_for_status()
+
+    return response
