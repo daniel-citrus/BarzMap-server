@@ -7,7 +7,9 @@ from services.Database.UsersTable import (
     delete_user_by_auth0_id,
     get_user_by_auth0_id,
 )
-from ..Adapters.Auth0ManagementAdapter import (
+
+from services.Adapters.Auth0ManagementAdapter import (
+    deleteUser,
     updateUserPermissions,
     getUser,
     getUserRoles,
@@ -18,7 +20,7 @@ User-related business logic.
 """
 
 
-def LoginSequence(db: Session, auth0Id: str) -> Optional[User]:
+def loginSequence(db: Session, auth0Id: str) -> Optional[User]:
     """Load existing user or create from Auth0 and assign default Auth0 role."""
     user = get_user_by_auth0_id(db, auth0Id)
 
@@ -56,7 +58,6 @@ def delete_user_by_auth0(db: Session, auth0_id: str) -> bool:
     Deletes the user from Auth0 (via Auth0ManagementAdapter) and from the local database.
     Returns True if user was deleted in DB, False if not found.
     """
-    from services.Adapters.Auth0ManagementAdapter import deleteUser
 
     # Delete from Auth0 (raises exception on HTTP error)
     deleteUser(auth0_id)

@@ -12,9 +12,8 @@ from models.requests.users import UpdateUserPermissionsRequest
 from models.responses.UsersResponses import UserResponse
 from services.Database import get_db
 from services.Database.UsersTable import get_all_users
-from services.Manager.Users import LoginSequence
+from services.Manager.Users import delete_user_by_auth0, loginSequence
 from services.Adapters.Auth0ManagementAdapter import (
-    deleteUser,
     getUserRoles,
     updateUserPermissions,
 )
@@ -44,7 +43,7 @@ def user_login(auth0_id: str, db: Session = Depends(get_db)):
             status_code=400,
             detail="Missing Auth0 user id (expected the Auth0 `sub`).",
         )
-    user = LoginSequence(db, normalized)
+    user = loginSequence(db, normalized)
     if not user:
         raise HTTPException(status_code=404, detail="Error with login sequence")
     return user
@@ -84,7 +83,7 @@ def get_user_roles(auth0_id: str) -> Optional[list[dict[str, Any]]]:
 
 
 @router.delete("/{auth0_id}", status_code=204, tags=["Users"])
-def delete_auth0_user(auth0_id: str) -> None:
+def delete_auth0_user(auth0_id: str, db: Session = Depends(get_db)) -> None:
     normalized = auth0_id.strip()
     if not normalized or normalized.lower() in _INVALID_AUTH0_PATH:
         raise HTTPException(
@@ -92,7 +91,7 @@ def delete_auth0_user(auth0_id: str) -> None:
             detail="Missing Auth0 user id (expected the Auth0 `sub`).",
         )
     try:
-        deleteUser(normalized)
+        delete_user_by_auth0(db, normalized)
     except HTTPError as exc:
         response = exc.response
         if response is None:
