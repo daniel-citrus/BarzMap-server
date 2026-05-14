@@ -23,6 +23,7 @@ def updateUserPermissions(
     auth0Id: str,
     roles: Optional[list[str]] = None,
 ) -> dict[str, Any]:
+    """Assign Auth0 roles to a user via the Management API; if roles is omitted, uses AUTH0_ROLE_USER."""
     url = f"https://{AUTH0_DOMAIN}/api/v2/users/{auth0Id}/roles"
     accessToken = getManagementAPIAccessToken()
     resolved_roles = (

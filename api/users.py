@@ -9,7 +9,7 @@ from requests.exceptions import HTTPError
 from sqlalchemy.orm import Session
 
 from models.requests.users import UpdateUserPermissionsRequest
-from models.responses.UsersResponses import UserResponse
+from models.responses.UsersResponses import UserLoginResponse, UserResponse
 from services.Database import get_db
 from services.Database.UsersTable import get_all_users
 from services.Manager.Users import delete_user_by_auth0, loginSequence
@@ -35,18 +35,18 @@ def list_users(
     return get_all_users(db, skip=skip, limit=limit)
 
 
-@router.post("/{auth0_id}", tags=["Users"])
-def user_login(auth0_id: str, db: Session = Depends(get_db)):
+@router.post("/{auth0_id}", response_model=UserLoginResponse, tags=["Users"])
+def user_login(auth0_id: str, db: Session = Depends(get_db)) -> UserLoginResponse:
     normalized = auth0_id.strip()
     if not normalized or normalized.lower() in _INVALID_AUTH0_PATH:
         raise HTTPException(
             status_code=400,
             detail="Missing Auth0 user id (expected the Auth0 `sub`).",
         )
-    user = loginSequence(db, normalized)
-    if not user:
+    payload = loginSequence(db, normalized)
+    if not payload:
         raise HTTPException(status_code=404, detail="Error with login sequence")
-    return user
+    return payload
 
 
 @router.post("/{auth0_id}/permissions", tags=["Users"])

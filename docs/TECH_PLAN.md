@@ -92,20 +92,20 @@ Still in schema, services, or product docs but **not** exposed as mounted router
 
 Product-oriented phases (overlaps in places with **P1 backlog** and **P2** above; those sections track engineering detail).
 
-### Phase 1: Core API ✅
+### Phase 1: Core API
 - [x] Database schema design and implementation
 - [x] Frontend-trimmed HTTP API mounted in `main.py`
 - [x] API documentation (Swagger/OpenAPI)
 - [x] Basic location-based park queries (`GET /api/park/location`)
 
-### Phase 2: Admin & Moderation 🚧
+### Phase 2: Admin & Moderation
 - [ ] Role-based access control (RBAC) and JWT-protected routes
 - [x] Park submission moderation (`PATCH /api/park/{park_id}`) and deletion (`DELETE /api/park/{park_id}`)
 - [ ] Admin submission list/detail HTTP aligned with `docs/FEDC.md` (e.g. `/api/admin/park-submissions`)
 - [ ] Reviews HTTP surface (`/api/reviews`)
 - [ ] Dedicated image moderation / management endpoints beyond list-by-park
 
-### Phase 3: Advanced Features 📋
+### Phase 3: Advanced Features
 - [ ] Advanced geospatial queries (PostGIS)
 - [ ] AI-powered equipment detection from images
 - [ ] Real-time notifications

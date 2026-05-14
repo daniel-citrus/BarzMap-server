@@ -1,7 +1,7 @@
-from typing import Optional
+from typing import Any, Optional
 from sqlalchemy.orm import Session
 
-from models.database import User
+from models.responses.UsersResponses import UserLoginResponse
 from services.Database.UsersTable import (
     create_user,
     delete_user_by_auth0_id,
@@ -20,8 +20,8 @@ User-related business logic.
 """
 
 
-def loginSequence(db: Session, auth0Id: str) -> Optional[User]:
-    """Load existing user or create from Auth0 and assign default Auth0 role."""
+def loginSequence(db: Session, auth0Id: str) -> Optional[UserLoginResponse]:
+    """Load or create user in DB; attach Auth0 role ids for the login payload only."""
     user = get_user_by_auth0_id(db, auth0Id)
 
     if user is None:
@@ -36,7 +36,11 @@ def loginSequence(db: Session, auth0Id: str) -> Optional[User]:
             name=auth0User.get("name"),
         )
 
+    user_roles: list[dict[str, Any]] = getUserRoles(auth0Id) or []
+
+    if not user_roles:
         permissions_result = updateUserPermissions(auth0Id)
+
         status_code = int(permissions_result.get("status_code", 500))
         if status_code >= 300:
             print(
@@ -44,12 +48,25 @@ def loginSequence(db: Session, auth0Id: str) -> Optional[User]:
                 {"auth0_id": auth0Id, **permissions_result},
             )
 
-    userRoles = getUserRoles(auth0Id)
+        user_roles = getUserRoles(auth0Id) or []
 
-    if userRoles == []:
-        updateUserPermissions(auth0Id)
+    role_ids: list[str] = []
+    for role in user_roles:
+        if not isinstance(role, dict):
+            continue
+        role_id = role.get("id")
+        if role_id is None:
+            continue
+        role_ids.append(str(role_id))
 
-    return user
+    return UserLoginResponse(
+        id=user.id,
+        auth0_id=user.auth0_id,
+        email=user.email,
+        name=user.name,
+        profile_picture_url=user.profile_picture_url,
+        roles=role_ids,
+    )
 
 
 def delete_user_by_auth0(db: Session, auth0_id: str) -> bool:
