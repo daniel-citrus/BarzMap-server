@@ -54,7 +54,7 @@ def loginSequence(db: Session, auth0Id: str) -> Optional[UserLoginResponse]:
     for role in user_roles:
         if not isinstance(role, dict):
             continue
-        role_id = role.get("id")
+        role_id = role.get("name")
         if role_id is None:
             continue
         role_ids.append(str(role_id))
