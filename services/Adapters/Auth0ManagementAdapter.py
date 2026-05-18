@@ -75,7 +75,7 @@ def getUser(auth0Id: str) -> Optional[dict[str, Any]]:
 def getUserRoles(auth0Id: str) -> Optional[list[dict[str, Any]]]:
     """
     GET /api/v2/users/:id/roles — returns a JSON array of role objects.
-    Empty roles => [] (not null). Uses response.json() so you always get a Python list.
+    Empty roles => [] (not null). Returns a Python list via response.json().
     """
     url = f"https://{AUTH0_DOMAIN}/api/v2/users/{auth0Id}/roles"
     accessToken = getManagementAPIAccessToken()
@@ -93,6 +93,35 @@ def getUserRoles(auth0Id: str) -> Optional[list[dict[str, Any]]]:
     if not isinstance(body, list):
         return [body] if isinstance(body, dict) else []
     return body
+
+
+def getUserPermissions(auth0_id: str) -> Optional[list[str]]:
+    """
+    GET /api/v2/users/:id/permissions — returns a JSON array of permission objects.
+    Empty permissions => [] (not null). Returns a Python list via response.json().
+    """
+    url = f"https://{AUTH0_DOMAIN}/api/v2/users/{auth0_id}/permissions"
+    access_token = getManagementAPIAccessToken()
+    headers = authorizationHeaders(access_token)
+
+    response = requests.request("GET", url, headers=headers, timeout=30)
+    if response.status_code == 404:
+        return []
+    response.raise_for_status()
+    if not response.content or not response.content.strip():
+        return []
+
+    body = response.json()
+
+    if body is None:
+        return []
+
+    permissions: list[str] = []
+
+    for permission in body:
+        permissions.append(permission["permission_name"])
+
+    return permissions
 
 
 def getManagementAPIAccessToken() -> str:

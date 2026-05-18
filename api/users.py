@@ -13,10 +13,7 @@ from models.responses.UsersResponses import UserLoginResponse, UserResponse
 from services.Database import get_db
 from services.Database.UsersTable import get_all_users
 from services.Manager.Users import delete_user_by_auth0, loginSequence
-from services.Adapters.Auth0ManagementAdapter import (
-    getUserRoles,
-    updateUserPermissions,
-)
+from services.Adapters.Auth0ManagementAdapter import updateUserPermissions
 
 router = APIRouter()
 
@@ -67,11 +64,10 @@ def set_user_permissions(auth0_id: str, body: UpdateUserPermissionsRequest):
     )
 
 
-@router.get("/{auth0_id}/roles", tags=["Users"])
-def get_user_roles(auth0_id: str) -> Optional[list[dict[str, Any]]]:
+@router.get("/{auth0_id}/permissions", response_model=List, tags=["Users"])
+def get_user_permissions(auth0_id: str):
     """
-    Auth0 roles for this user id (`sub`). Returns JSON ``null`` if Auth0 has no such user (404),
-    or a list of role objects (possibly empty if the user has no roles).
+    Return all permission objects for a given Auth0 user.
     """
     normalized = auth0_id.strip()
     if not normalized or normalized.lower() in _INVALID_AUTH0_PATH:
@@ -79,7 +75,12 @@ def get_user_roles(auth0_id: str) -> Optional[list[dict[str, Any]]]:
             status_code=400,
             detail="Missing Auth0 user id (expected the Auth0 `sub`).",
         )
-    return getUserRoles(normalized)
+    from services.Adapters.Auth0ManagementAdapter import getUserPermissions
+
+    permissions = getUserPermissions(normalized)
+    if permissions is None:
+        raise HTTPException(status_code=404, detail="User permissions not found.")
+    return permissions
 
 
 @router.delete("/{auth0_id}", status_code=204, tags=["Users"])

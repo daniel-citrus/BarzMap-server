@@ -13,6 +13,7 @@ from services.Adapters.Auth0ManagementAdapter import (
     updateUserPermissions,
     getUser,
     getUserRoles,
+    getUserPermissions,
 )
 
 """
@@ -48,7 +49,7 @@ def loginSequence(db: Session, auth0Id: str) -> Optional[UserLoginResponse]:
                 {"auth0_id": auth0Id, **permissions_result},
             )
 
-        user_roles = getUserRoles(auth0Id) or []
+        user_roles = getUserPermissions(auth0Id) or []
 
     role_ids: list[str] = []
     for role in user_roles:
